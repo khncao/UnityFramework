@@ -1,0 +1,13 @@
+{
+  "name": "com.minus4kelvin.ai",
+  "version": "0.5.0",
+  "displayName": "m4k.AI",
+  "description": "AI, Nav Task system",
+  "unity": "2019.1",
+  "dependencies": {
+    "com.minus4kelvin.core": "0.8.0"
+  },
+  "keywords": [
+    "ai"
+  ]
+}

@@ -1,0 +1,23 @@
+{
+    "name": "com.minus4kelvin.AI.Runtime",
+    "rootNamespace": "",
+    "references": [
+        "GUID:b39e51532aaf1aa42afe103341854a22",
+        "GUID:49b49c76ee64f6b41bf28ef951cb0e50"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.mackysoft.serializereference-extensions",
+            "expression": "",
+            "define": "SERIALIZE_REFS"
+        }
+    ],
+    "noEngineReferences": false
+}
