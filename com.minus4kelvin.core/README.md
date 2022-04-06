@@ -8,10 +8,6 @@ Still prone to breaking changes. Core gameplay systems and utilities that can be
 - (Required tentative)(SerializeReferenceExtensions)[https://github.com/mackysoft/Unity-SerializeReferenceExtensions] for automatic SerializableReference editability. May phase out if implement own custom editor for conditions.
 - Tested working on Unity 2021.2+
 
-### Installation
-- Add Git URL package through Package Manager
-- or, clone and add as local package
-
 ### Todo
 - Character system improvements
   - traits; integration with dialogue and AI
