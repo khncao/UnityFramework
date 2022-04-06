@@ -1,9 +1,5 @@
 # AI and Character Task System
 
-### Dependencies
-- https://github.com/khncao/com.minus4kelvin.core 
-- Tested working on Unity 2020.3.6f1+
-
 ### Summary
 - Simple finite state machine with some common implementations
 

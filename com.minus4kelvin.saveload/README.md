@@ -1,8 +1,6 @@
 # Simple Save Load System
 
 ### Dependencies
-- https://github.com/khncao/com.minus4kelvin.core 
-  - Singleton, Feedback and SceneHandler
 - (optional)TextMeshPro
 - Tested on Unity 2020.3.6f1+
 

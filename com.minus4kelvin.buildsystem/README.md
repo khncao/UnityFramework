@@ -1,9 +1,5 @@
 # Basic Runtime Building System
 
-### Dependencies
-- https://github.com/khncao/com.minus4kelvin.core 
-- Tested working on Unity 2020.3.6f1+
-
 ### Buildable Prefab Hierarchy
 - Pivot root
   - Child with BuildingSystemObject, Renderer, Collider, Rigidbody
