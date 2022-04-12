@@ -3,7 +3,7 @@
   "version": "0.9.0",
   "displayName": "m4k.SaveLoad",
   "description": "Game save load system",
-  "unity": "2019.1",
+  "unity": "2020.3",
   "dependencies": {
     "com.minus4kelvin.core": "0.8.0",
     "com.unity.textmeshpro": "3.0.4"

@@ -3,11 +3,12 @@
   "version": "0.8.1",
   "displayName": "m4k.Core",
   "description": "Core systems",
-  "unity": "2019.1",
+  "unity": "2020.3",
   "dependencies": {
     "com.unity.textmeshpro": "3.0.6",
     "com.unity.cinemachine": "2.7.3",
-    "com.unity.timeline": "1.5.5"
+    "com.unity.timeline": "1.5.5",
+    "com.unity.addressables": "1.19.19"
   },
   "keywords": [
     "core"
