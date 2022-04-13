@@ -19,12 +19,12 @@ public class ItemArranger : MonoBehaviour { //ITaskInteractable
     bool initialized;
     
     Item[] _items;
-    GameObject[] _spawnedItems;
+    GameObject[] _spawnedGoInstances;
     Inventory _inventory;
 
     private void Awake() {
         _items = new Item[objPlaces.Length];
-        _spawnedItems = new GameObject[objPlaces.Length];
+        _spawnedGoInstances = new GameObject[objPlaces.Length];
         if(!TryGetComponent<InventoryComponent>(out InventoryComponent ic)) {
             ic = gameObject.AddComponent<InventoryComponent>();
             ic.inventorySlots = objPlaces.Length;
@@ -59,7 +59,7 @@ public class ItemArranger : MonoBehaviour { //ITaskInteractable
     /// </summary>
     /// <param name="newItems"></param>
     public void UpdateItems(List<ItemInstance> newItems) {
-        GameObject item;
+        GameObject goInstance;
         int objPlaceIdx = 0;
         itemInstances = newItems;
 
@@ -68,16 +68,18 @@ public class ItemArranger : MonoBehaviour { //ITaskInteractable
             for(int j = 0; j < newItems[i].amount; ++j) 
             {
                 if(newItems[i].item == _items[objPlaceIdx]) {
-                    item = _spawnedItems[objPlaceIdx];
-                    item.SetActive(true);
+                    goInstance = _spawnedGoInstances[objPlaceIdx];
+                    goInstance.SetActive(true);
                 }
                 else {
-                    Destroy(_spawnedItems[objPlaceIdx]);
-                    item = Instantiate(newItems[i].item.prefab);
-                    item.transform.SetParent(objPlaces[objPlaceIdx], false);
+                    // Destroy(_spawnedGoInstances[objPlaceIdx]);
+                    if(_items[objPlaceIdx] && _spawnedGoInstances[objPlaceIdx])
+                        _items[objPlaceIdx].ReleasePrefabInstance(_spawnedGoInstances[objPlaceIdx]);
+
+                    goInstance = newItems[i].item.GetNewPrefabInstance(objPlaces[objPlaceIdx]);
                 }
                 _items[objPlaceIdx] = newItems[i].item;
-                _spawnedItems[objPlaceIdx] = item;
+                _spawnedGoInstances[objPlaceIdx] = goInstance;
 
                 objPlaceIdx++;
                 if(objPlaceIdx >= objPlaces.Length)
@@ -86,7 +88,7 @@ public class ItemArranger : MonoBehaviour { //ITaskInteractable
         }
 
         while(objPlaceIdx < objPlaces.Length) {
-            _spawnedItems[objPlaceIdx]?.SetActive(false);
+            _spawnedGoInstances[objPlaceIdx]?.SetActive(false);
             objPlaceIdx++;
         }
         
@@ -108,19 +110,18 @@ public class ItemArranger : MonoBehaviour { //ITaskInteractable
     // Single item
     public void UpdateItems(Item newItem) {
         if(newItem == _items[0]) {
-            _spawnedItems[0].SetActive(true);
+            _spawnedGoInstances[0].SetActive(true);
         }
         else {
-            _spawnedItems[0] = Instantiate(newItem.prefab);
-            _spawnedItems[0].transform.SetParent(objPlaces[0], false);
+            _spawnedGoInstances[0] = newItem.GetNewPrefabInstance(objPlaces[0], false);
             _items[0] = newItem;
         }
     }
 
     public void HideItems() {
-        for(int i = 0; i < _spawnedItems.Length; ++i) {
-            if(_spawnedItems[i])
-                _spawnedItems[i].SetActive(false);
+        for(int i = 0; i < _spawnedGoInstances.Length; ++i) {
+            if(_spawnedGoInstances[i])
+                _spawnedGoInstances[i].SetActive(false);
         }
     }
 
@@ -150,4 +151,11 @@ public class ItemArranger : MonoBehaviour { //ITaskInteractable
     // public void OnTaskInteract(Task task) {
 
     // }
+
+    private void OnDestroy() {
+        for(int i = 0; i < _items.Length; ++i) {
+            if(_items[i] == null) continue;
+            _items[i].ReleasePrefabInstance(_spawnedGoInstances[i]);
+        }
+    }
 }}

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UnityEditor;
 using m4k.Items;
 
@@ -41,12 +42,12 @@ public class GenerateItemFromPrefab : EditorWindow
             }
             var newItem = ScriptableObject.CreateInstance<ItemBuildable>();
             newItem.displayName = objs[i].name;
-            newItem.itemType = ItemType.Buildable;
             newItem.itemTags = new List<ItemTag>();
             newItem.itemTags.Add(itemTag);
             newItem.maxAmount = maxAmount;
-            newItem.prefab = objs[i];
-            // newItem.prefabRef = new UnityEngine.AddressableAssets.AssetReferenceT<GameObject>(GetGUID(objs[i])); 
+            // newItem.prefab = objs[i];
+            AssetDatabase.TryGetGUIDAndLocalFileIdentifier<GameObject>(objs[i], out var guid, out var id);
+            newItem.prefabRef = new AssetReference(guid);
 
             string assetPath = buildItemOutputPath + objs[i].name + ".asset";
             AssetDatabase.CreateAsset(newItem, assetPath);
@@ -75,13 +76,6 @@ public class GenerateItemFromPrefab : EditorWindow
             Debug.Log($"{objs[i].name} buildable generated");
         }
     }
-
-    // static string GetGUID(GameObject obj) {
-    //     string guid;
-    //     long l;
-    //     AssetDatabase.TryGetGUIDAndLocalFileIdentifier(obj, out guid, out l);
-    //     return guid;
-    // }
 }
 #endif
 }

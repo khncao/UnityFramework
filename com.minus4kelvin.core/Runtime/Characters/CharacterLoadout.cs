@@ -66,9 +66,9 @@ public class CharacterLoadout : MonoBehaviour
                 // var items = AssetRegistry.I.GetItemListByType(typeof(ItemEquip))
 				var items = AssetRegistry.Database.items;
                 for(int i = 0; i < items.Count; ++i) {
-                    if(!items[i].HasTag(t) || !items[i].prefab) 
+                    if(!items[i].HasTag(t) || items[i].prefabRef == null) 
                         continue;
-                    GameObject inst = prequippedInst.Find(x=>x.name == items[i].prefab.name);
+                    GameObject inst = prequippedInst.Find(x=>x.name == items[i].prefabRef.editorAsset.name);
                     if(inst) {
                         e.instance = inst;
                         if(e.item == null)
@@ -120,14 +120,18 @@ public class CharacterLoadout : MonoBehaviour
 			return slot.instance ? slot.instance : null;
 		}
 		if(slot.instance) 
+			slot.item.ReleasePrefabInstance(slot.instance);
+		if(slot.instance)
 			Destroy(slot.instance);
 
 		slot.item = newItem;
-		if(!newItem || !newItem.prefab) {
+		if(!newItem || newItem.prefabRef == null) {
 			Debug.LogWarning("Equip item null or no prefab");
 			return null;
 		}
-		slot.instance = Instantiate(slot.item.prefab);
+		// slot.instance = Instantiate(slot.item.prefab);
+		slot.instance = slot.item.GetNewPrefabInstance();
+
 		if(slot.equipParent)
 			slot.instance.transform.SetParent(slot.equipParent, false);
 		else
@@ -152,6 +156,13 @@ public class CharacterLoadout : MonoBehaviour
 		var skin = slot.rend as SkinnedMeshRenderer;
 		if(bsInd < skin.sharedMesh.blendShapeCount)
 			skin.SetBlendShapeWeight(bsInd, weight);
+	}
+
+	private void OnDestroy() {
+		for(int i = 0; i < charEquips.Count; ++i) {
+			if(charEquips[i].item && charEquips[i].instance)
+				charEquips[i].item.ReleasePrefabInstance(charEquips[i].instance);
+		}
 	}
 }
 }

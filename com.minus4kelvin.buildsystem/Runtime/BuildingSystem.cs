@@ -248,8 +248,9 @@ public class BuildingSystem : Singleton<BuildingSystem>
         }
         // Debug.Log($"Set buildable {item.name}");
         currItem = item;
-        var rot = shiftMod && prevObjTransform ? prevObjTransform.rotation : item.prefab.transform.rotation;
-        GameObject obj = Instantiate(item.prefab, Vector3.down * 50f, rot);
+        var rot = shiftMod && prevObjTransform ? prevObjTransform.rotation : Quaternion.identity;
+        // GameObject obj = Instantiate(item.prefab, Vector3.down * 50f, rot);
+        GameObject obj = item.GetNewPrefabInstance(Vector3.down * 50f, rot);
 
         EditBuildObject(obj);
     }
@@ -406,7 +407,8 @@ public class BuildingSystem : Singleton<BuildingSystem>
         for(int i = 0; i < builtItem.children.Count; ++i) {
             DestroyBuiltObjRecurs(builtItem.children[i]);
         }
-        Destroy(builtItem.instance);
+        // Destroy(builtItem.instance);
+        builtItem.item.ReleasePrefabInstance(builtItem.instance);
         currBuiltItems.Remove(builtItem);
         foreach(var tag in currBuiltItem.item.itemTags)
             GetOrAddBuiltItemsListByTag(tag).Remove(currBuiltItem);
@@ -486,7 +488,8 @@ public class BuildingSystem : Singleton<BuildingSystem>
             }
 
             if(!builtItem.instance) {
-                builtItem.instance = Instantiate(builtItem.item.prefab);
+                // builtItem.instance = Instantiate(builtItem.item.prefab);
+                builtItem.instance = builtItem.item.GetNewPrefabInstance();
 
                 builtItem.instance.transform.position = builtItem.pos;
                 builtItem.instance.transform.rotation = builtItem.rot;

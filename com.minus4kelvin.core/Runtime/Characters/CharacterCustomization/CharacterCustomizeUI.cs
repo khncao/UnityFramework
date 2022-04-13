@@ -206,7 +206,7 @@ public class CharacterCustomizeUI : MonoBehaviour
     }
 
     void UpdateOptionLabel(CustomizeItemLibrary library, Item item) {
-        library.optionUI.label1.text = item.prefab ? 
+        library.optionUI.label1.text = item.prefabRef != null ? 
         $"{library.optionType.ToString()} {library.optionUI.slider1.value + 1}" : 
         $"No {library.optionType.ToString()}";
     }

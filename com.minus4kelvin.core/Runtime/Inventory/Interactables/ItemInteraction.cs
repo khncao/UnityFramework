@@ -20,17 +20,21 @@ public class ItemInteraction : MonoBehaviour
         interactable = GetComponent<Interactable>();
         interactable?.events.onInteract.AddListener(Interact);
 
-        if(!item || !item.prefab) {
+        if(!item || item.prefabRef == null) {
             Debug.Log("ItemInteraction has no item or no item prefab");
             return;
         }
-        if(arranger)
-            arranger.UpdateItems(item);
-
-        instance = Instantiate(item.prefab, transform);
-        gameObject.name = item && !string.IsNullOrEmpty(item.displayName) ? item.displayName : item.prefab.name;
         if(interactable)
             interactable.description = gameObject.name;
+
+        if(arranger) {
+            arranger.UpdateItems(item);
+            return;
+        }
+        // instance = Instantiate(item.prefab, transform);
+        instance = item.GetNewPrefabInstance(transform);
+        gameObject.name = item && !string.IsNullOrEmpty(item.displayName) ? item.displayName : item.name;
+
     }
     public void Interact() {
         // if(instance) {
@@ -50,6 +54,11 @@ public class ItemInteraction : MonoBehaviour
         // if(animationClip && interactable) {
         //     var anim = interactable.otherCol.GetComponentInChildren<Animator>();
         // }
+    }
+
+    private void OnDestroy() {
+        if(instance)
+            item.ReleasePrefabInstance(instance);
     }
 }
 }

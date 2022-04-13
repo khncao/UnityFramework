@@ -1,15 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Serialization;
-// using UnityEngine.AddressableAssets;
-// using UnityEngine.ResourceManagement;
+using UnityEngine.AddressableAssets;
 
 namespace m4k.Items {
 
-public enum ItemType {
-    Item = 0, Buildable = 10, Character = 40, Recipe = 50, Equip = 60, Achievement = 100,
-}
 public enum ItemTag {
     Consumable = 0, Drink = 1, Food = 2,
     Floor = 10, Light = 11, Table = 12, Seat = 13, Prop = 14, Zone = 15, Wall = 16, 
@@ -62,16 +57,13 @@ public class Item : ScriptableObject
 
     [PreviewSpriteAttribute]
     public Sprite itemIcon;
-    public ItemType itemType;
     public List<ItemTag> itemTags;
-    public GameObject prefab;
-    // public AssetReference prefabRef;
-    // public Conditions conditions;
+    public AssetReference prefabRef;
     public int maxAmount = 1;
     public float value;
-    // public string guid;
 
     // public GameObject prefab { get { return prefabRef.Asset as GameObject; }}
+
     /// <summary>
     /// Display name; label
     /// </summary>
@@ -86,12 +78,19 @@ public class Item : ScriptableObject
 
     HashSet<ItemTag> tagHash;
 
-    // public void LoadAssets() {
-    //     prefabRef.LoadAssetAsync<GameObject>();
-    // }
-    // public void ReleaseAssets() {
-    //     prefabRef.ReleaseAsset();
-    // }
+    public GameObject GetNewPrefabInstance(Vector3 position, Quaternion rotation, Transform parent = null) {
+        var op = prefabRef.InstantiateAsync(position, rotation, parent);
+        return op.WaitForCompletion();
+    }
+
+    public GameObject GetNewPrefabInstance(Transform parent = null, bool inWorldSpace = false) {
+        var op = prefabRef.InstantiateAsync(parent, inWorldSpace);
+        return op.WaitForCompletion();
+    }
+
+    public void ReleasePrefabInstance(GameObject go) {
+        prefabRef.ReleaseInstance(go);
+    }
 
     public bool HasTag(ItemTag tag) {
         if(tagHash == null) {
@@ -142,21 +141,11 @@ public class Item : ScriptableObject
         name = item.name;
         _displayName = item._displayName;
         description = item.description;
-        prefab = item.prefab;
-        // prefabRef = item.prefabRef;
-        // conditions = item.conditions;
+        prefabRef = item.prefabRef;
         maxAmount = item.maxAmount;
         value = item.value;
-        // guid = item.guid;
         itemIcon = item.itemIcon;
         itemTags = item.itemTags;
-        itemType = item.itemType;
     }
 }
-
-// public interface ISlottable {
-//     public string slotName { get; }
-//     public string slotDescription { get; }
-//     public Sprite slotSprite { get; }
-// }
 }
