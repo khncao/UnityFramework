@@ -47,7 +47,7 @@ public class GenerateItemFromPrefab : EditorWindow
             newItem.maxAmount = maxAmount;
             // newItem.prefab = objs[i];
             AssetDatabase.TryGetGUIDAndLocalFileIdentifier<GameObject>(objs[i], out var guid, out var id);
-            newItem.prefabRef = new AssetReference(guid);
+            newItem.prefabRef = new AssetReferenceGameObject(guid);
 
             string assetPath = buildItemOutputPath + objs[i].name + ".asset";
             AssetDatabase.CreateAsset(newItem, assetPath);

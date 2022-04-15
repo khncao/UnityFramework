@@ -58,7 +58,7 @@ public class Item : ScriptableObject
     [PreviewSpriteAttribute]
     public Sprite itemIcon;
     public List<ItemTag> itemTags;
-    public AssetReference prefabRef;
+    public AssetReferenceGameObject prefabRef;
     public int maxAmount = 1;
     public float value;
 
@@ -79,11 +79,19 @@ public class Item : ScriptableObject
     HashSet<ItemTag> tagHash;
 
     public GameObject GetNewPrefabInstance(Vector3 position, Quaternion rotation, Transform parent = null) {
+        if(!ValidPrefabReference()) {
+            Debug.LogWarning($"{displayName} no prefab ref");
+            return null;
+        }
         var op = prefabRef.InstantiateAsync(position, rotation, parent);
         return op.WaitForCompletion();
     }
 
     public GameObject GetNewPrefabInstance(Transform parent = null, bool inWorldSpace = false) {
+        if(!ValidPrefabReference()) {
+            Debug.LogWarning($"{displayName} no prefab ref");
+            return null;
+        }
         var op = prefabRef.InstantiateAsync(parent, inWorldSpace);
         return op.WaitForCompletion();
     }
@@ -146,6 +154,13 @@ public class Item : ScriptableObject
         value = item.value;
         itemIcon = item.itemIcon;
         itemTags = item.itemTags;
+    }
+
+    bool ValidPrefabReference() {
+        var location = Addressables.LoadResourceLocationsAsync(prefabRef);
+        if(location.WaitForCompletion().Count == 0)
+            return false;
+        return true;
     }
 }
 }

@@ -197,7 +197,8 @@ public class AssetRegistry : Singleton<AssetRegistry> {
 
             // if(obj is Item item) {
             //     AssetDatabase.TryGetGUIDAndLocalFileIdentifier<GameObject>(item.prefab, out var prefabGuid, out var localId);
-            //     item.prefabRef = new UnityEngine.AddressableAssets.AssetReference(prefabGuid);
+            //     item.prefabRef = new UnityEngine.AddressableAssets.AssetReferenceGameObject(prefabGuid);
+            //     EditorUtility.SetDirty(obj);
             // }
         }
         Debug.Log($"Updated query {query} asset registry, total: " + result.Length);
