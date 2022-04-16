@@ -3,9 +3,12 @@ using UnityEngine;
 
 namespace m4k {
 [Serializable]
-public class ConditionComparable<T> : Condition where T : IComparable {
+public class ConditionComparable<T, T1> : Condition 
+    where T : IComparable 
+    where T1 : PrimitiveBaseSO<T> 
+{
     public string description;
-    public PrimitiveBaseSO<T> obj;
+    public T1 obj;
     public ComparisonType op;
     public T val;
 
@@ -39,12 +42,12 @@ public class ConditionComparable<T> : Condition where T : IComparable {
 }
 
 [Serializable]
-public class ConditionIntComparable : ConditionComparable<int> {
+public class ConditionIntComparable : ConditionComparable<int, IntSO> {
 }
 
 [Serializable]
-public class ConditionFloatComparable : ConditionComparable<float> { }
+public class ConditionFloatComparable : ConditionComparable<float, FloatSO> { }
 
 [Serializable]
-public class ConditionBoolComparable : ConditionComparable<bool> { }
+public class ConditionBoolComparable : ConditionComparable<bool, BoolSO> { }
 }
