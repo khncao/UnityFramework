@@ -20,9 +20,6 @@ public class AssetRegistry : Singleton<AssetRegistry> {
     Dictionary<string, Item> itemNameDict;
     [System.NonSerialized]
     Dictionary<ItemTag, List<Item>> itemTagLists;
-    [System.NonSerialized]
-    Dictionary<ItemType, List<Item>> itemTypeLists;
-    [System.NonSerialized]
     Dictionary<System.Type, List<Item>> itemTypeListDict;
 
     [System.NonSerialized]
@@ -95,8 +92,7 @@ public class AssetRegistry : Singleton<AssetRegistry> {
     }
 
     public Item GetItemFromName(string name) {
-        Item item;
-        itemNameDict.TryGetValue(name, out item);
+        itemNameDict.TryGetValue(name, out var item);
         if(!item) {
             Debug.LogError(string.Format("//{0}// not found in db", name));
         }
@@ -104,21 +100,18 @@ public class AssetRegistry : Singleton<AssetRegistry> {
     }
 
     public List<Item> GetItemListByTag(ItemTag tag) {
-        List<Item> get;
-        itemTagLists.TryGetValue(tag, out get);
+        itemTagLists.TryGetValue(tag, out var get);
         return get;
     }
 
     public List<Item> GetItemListByType(System.Type type) {
-        List<Item> get;
-        itemTypeListDict.TryGetValue(type, out get);
+        itemTypeListDict.TryGetValue(type, out var get);
         return get;
     }
 
 
     public Character GetCharacterFromName(string name) {
-        Character chara;
-        charDict.TryGetValue(name, out chara);
+        charDict.TryGetValue(name, out var chara);
         if(!chara) {
             Debug.LogWarning($"//{name}// character not found");
         }
@@ -127,8 +120,7 @@ public class AssetRegistry : Singleton<AssetRegistry> {
 
 
     public Convo GetConvoById(string id) {
-        Convo convo;
-        idConvosDict.TryGetValue(id, out convo);
+        idConvosDict.TryGetValue(id, out var convo);
         return convo;
     }
 
@@ -202,6 +194,12 @@ public class AssetRegistry : Singleton<AssetRegistry> {
                 AssetDatabase.GUIDToAssetPath(result[i])
             );
             l.Add(obj);
+
+            // if(obj is Item item) {
+            //     AssetDatabase.TryGetGUIDAndLocalFileIdentifier<GameObject>(item.prefab, out var prefabGuid, out var localId);
+            //     item.prefabRef = new UnityEngine.AddressableAssets.AssetReferenceGameObject(prefabGuid);
+            //     EditorUtility.SetDirty(obj);
+            // }
         }
         Debug.Log($"Updated query {query} asset registry, total: " + result.Length);
         return l;

@@ -2,7 +2,9 @@ using System;
 using UnityEngine;
 
 namespace m4k {
-public abstract class PrimitiveBaseSO<T> : ScriptableObject, IComparable<T> where T : IComparable {
+public abstract class PrimitiveBaseSO<T> : ScriptableObject, IComparable<T>
+    where T : IComparable 
+{
     [SerializeField]
     T _value;
 

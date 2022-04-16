@@ -5,7 +5,9 @@
         "Unity.TextMeshPro",
         "Cinemachine",
         "Unity.Timeline",
-        "MackySoft.SerializeReferenceExtensions"
+        "MackySoft.SerializeReferenceExtensions",
+        "Unity.Addressables",
+        "Unity.ResourceManager"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
