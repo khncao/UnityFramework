@@ -60,7 +60,8 @@ public class SerializableDictionary<TKey, TValue> : SerializableDictionary, ISer
         get => list[(int) KeyPositions[key]].Value;
         set {
             if (KeyPositions.TryGetValue(key, out uint index))
-                list[(int) index].SetValue(value);
+                // list[(int) index].SetValue(value);
+                list[(int)index] = new SerializableKeyValuePair(key, value);
             else {
                 KeyPositions[key] = (uint) list.Count;
                 list.Add( new SerializableKeyValuePair( key, value ) );
