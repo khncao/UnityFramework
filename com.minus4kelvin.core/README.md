@@ -5,6 +5,7 @@ Still prone to breaking changes. Core gameplay systems and utilities that can be
 - TextMeshPro
 - Cinemachine
 - Timeline
+- InputSystem
 - (Required tentative)(SerializeReferenceExtensions)[https://github.com/mackysoft/Unity-SerializeReferenceExtensions] for automatic SerializableReference editability. May phase out if implement own custom editor for conditions.
 - Tested working on Unity 2021.2+
 

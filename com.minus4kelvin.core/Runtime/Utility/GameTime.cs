@@ -3,6 +3,22 @@ using UnityEngine;
 namespace m4k {
 [System.Serializable]
 public class GameTime : Singleton<GameTime> {
+    [System.Serializable]
+    public class TimeProfile {
+        public string profileName;
+        [Range(0.1f, 5f)]
+        public float ticksPerSecond = 1f;
+        public float timeMult = 1f;
+        public float secondsPerDay = 1440f;
+        public float secondsPerHour = 60f;
+        // public int hoursPerDay = 24;
+        public int daysInWeek = 7;
+        public int daysInMonth = 30;
+        public int monthsInYear = 12;
+        public float dayStartTime = 360f;
+        public float nightStartTime = 960f;
+    }
+
     public struct GameSeason {
         public string name;
     }
@@ -16,22 +32,12 @@ public class GameTime : Singleton<GameTime> {
     }
     public bool paused;
 
-    public int day, week, month, year;
     public long ticks;
+    public int day;
 
     public FloatSO timeOfDaySO;
 
-    [Range(0.1f, 5f)]
-    public float ticksPerSecond = 1f;
-    public float timeMult = 1f;
-    public float secondsPerDay = 1440f;
-    public float secondsPerHour = 60f;
-    // public int hoursPerDay = 24;
-    public int daysInWeek = 7;
-    public int daysInMonth = 30;
-    public int monthsInYear = 12;
-    public float dayStartTime = 360f;
-    public float nightStartTime = 960f;
+    public TimeProfile timeProfile;
 
     public GameMonth[] gameMonths;
     public DayPeriod[] dayPeriods;
@@ -43,6 +49,10 @@ public class GameTime : Singleton<GameTime> {
             if(timeOfDaySO) timeOfDaySO.value = value;
         }
     }
+
+    public int week { get; private set; } 
+    public int month { get; private set; }
+    public int year { get; private set; }
 
     public System.Action<int> onTickTime, onDayPeriod, hourly, daily, weekly, monthly, yearly;
     public System.Action<long> onTick;
@@ -63,10 +73,14 @@ public class GameTime : Singleton<GameTime> {
         Time.timeScale = t;
     }
 
-    void Update() {
-        timeOfDay = (timeOfDay + Time.deltaTime * timeMult);
+    // void Start() {
+        
+    // }
 
-        if(timeOfDay > secondsPerDay) {
+    void Update() {
+        timeOfDay = (timeOfDay + Time.deltaTime * timeProfile.timeMult);
+
+        if(timeOfDay > timeProfile.secondsPerDay) {
             timeOfDay = 0;
             day++;
             daily?.Invoke(day);
@@ -75,20 +89,20 @@ public class GameTime : Singleton<GameTime> {
 
         _tickTimer += Time.deltaTime;
 
-        if(_tickTimer > ticksPerSecond) {
+        if(_tickTimer > timeProfile.ticksPerSecond) {
             ticks++;
             _tickTimer = 0;
             onTick?.Invoke(ticks);
             onTickTime?.Invoke((int)timeOfDay);
 
-            if(timeOfDay % secondsPerHour < timeMult) {
+            if(timeOfDay % timeProfile.secondsPerHour < timeProfile.timeMult) {
                 hourly?.Invoke((int)timeOfDay);
             }
         }
     }
 
     void CheckDaily() {
-        if(day % (daysInWeek + 1) == 0) {
+        if(day % (timeProfile.daysInWeek + 1) == 0) {
             week++;
             weekly?.Invoke(week);
         }
@@ -106,10 +120,10 @@ public class GameTime : Singleton<GameTime> {
             }
         }
         else {
-            if(day % (daysInMonth + 1) == 0) {
+            if(day % (timeProfile.daysInMonth + 1) == 0) {
                 month++;
 
-                if(month % (monthsInYear + 1) == 0) {
+                if(month % (timeProfile.monthsInYear + 1) == 0) {
                     month = 0;
                     year++;
                     yearly?.Invoke(year);
@@ -126,7 +140,7 @@ public class GameTime : Singleton<GameTime> {
     }
 
     public string TimeToString() {
-        return System.String.Format("{0:00}:{1:00}", (timeOfDay / secondsPerHour), (timeOfDay % secondsPerHour));
+        return System.String.Format("{0:00}:{1:00}", (timeOfDay / timeProfile.secondsPerHour), (timeOfDay % timeProfile.secondsPerHour));
     }
 }
 }

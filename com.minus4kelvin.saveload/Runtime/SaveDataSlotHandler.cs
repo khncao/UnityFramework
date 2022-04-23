@@ -7,6 +7,8 @@ using UnityEngine.UI;
 namespace m4k.SaveLoad {
 public class SaveDataSlotHandler : MonoBehaviour
 {
+    public SaveDataSlot quickSaveSlot;
+    public SaveDataSlot autoSaveSlot;
     public SaveDataSlot[] slots;
 #if TMPRO
     public TMPro.TMP_Text slotsLabel;
@@ -18,35 +20,54 @@ public class SaveDataSlotHandler : MonoBehaviour
     Action<int> _onPressSlot;
     int _overwriteSlotId;
 
-    void Awake() {
+    void Start() {
         InitSlots();
         RefreshSlots();
     }
 
     void InitSlots() {
-        for(int i = 0; i < slots.Length; i++) 
-        {
-            var button = slots[i].GetComponent<Button>();
-            int id = i;
-            button.onClick.AddListener( () => OnButton(id) );
+        if(quickSaveSlot) 
+            ConfigSlot(quickSaveSlot, SaveLoadManager.QuickSaveId);
+        if(autoSaveSlot) 
+            ConfigSlot(autoSaveSlot, SaveLoadManager.AutoSaveId);
 
-            slots[i].slotId.text = i.ToString();
+        for(int i = 0; i < slots.Length; i++) {
+            ConfigSlot(slots[i], i);
+        }
+    }
+
+    void ConfigSlot(SaveDataSlot slot, int id) {
+        if(slot.TryGetComponent<Button>(out var button)) {
+            button.onClick.AddListener(()=>OnButton(id));
+            slot.slotId.text = id.ToString();
         }
     }
 
     public void RefreshSlots() 
     {
-        for(int i = 0; i < slots.Length; i++) 
-        {
-            var fileName = string.Format("saveFile{0}", i);
+        if(quickSaveSlot) 
+            RefreshSlot(quickSaveSlot, SaveLoadManager.QuickSaveId);
+        if(autoSaveSlot) 
+            RefreshSlot(autoSaveSlot, SaveLoadManager.AutoSaveId);
 
-            if(PlayerPrefs.HasKey(fileName)) 
-            {
-                slots[i].sceneName.text = PlayerPrefs.GetString(fileName + "_scene");
-                // slots[i].money.text = PlayerPrefs.GetInWt(fileName + "_money").ToString();
-                slots[i].playTime.text = FormatTime( PlayerPrefs.GetInt(fileName + "_time") );
-            }
+        for(int i = 0; i < slots.Length; i++) {
+            RefreshSlot(slots[i], i);
         }
+    }
+
+    void RefreshSlot(SaveDataSlot slot, int id) {
+        var fileName = $"{SaveLoadManager.SaveFilePrefix}{id}";
+
+        // if(PlayerPrefs.HasKey(fileName)) 
+        // {
+        //     slot.sceneName.text = PlayerPrefs.GetString(fileName + "_scene");
+        //     slot.playTime.text = FormatTime( PlayerPrefs.GetInt(fileName + "_time") );
+        // }
+        SaveLoadManager.SaveMetaData.TryGetData(fileName, "scene", out var sceneName);
+        SaveLoadManager.SaveMetaData.TryGetData(fileName, "time", out var timeString);
+        
+        slot.sceneName.text = sceneName;
+        slot.playTime.text = string.IsNullOrEmpty(timeString) ? "" : FormatTime(int.Parse(timeString));
     }
 
     public void OpenSaveSlots() {
