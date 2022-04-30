@@ -12,7 +12,13 @@ namespace m4k {
 /// Persistent collection of tags. Used as database and for runtime tag validation. Accessible as singleton through static I variable
 /// </summary>
 public class TagsSO : ScriptableObject {
-    public static TagsSO I;
+    public static TagsSO I {
+        get {
+            if(!_instance) _instance = GetAsset();
+            return _instance;
+        }
+    }
+    static TagsSO _instance;
 
     public List<string> tags;
     
@@ -49,7 +55,7 @@ public class TagsSO : ScriptableObject {
     }
 
     private void OnEnable() {
-        I = this;
+        _instance = this;
     }
 
     /// <summary>
