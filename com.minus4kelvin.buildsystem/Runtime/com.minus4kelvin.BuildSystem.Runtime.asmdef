@@ -1,5 +1,5 @@
 {
-    "name": "com.minus4kelvin.buildsystem.runtime",
+    "name": "com.minus4kelvin.Buildsystem.Runtime",
     "rootNamespace": "",
     "references": [
         "GUID:b39e51532aaf1aa42afe103341854a22"

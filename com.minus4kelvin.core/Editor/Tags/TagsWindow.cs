@@ -121,12 +121,14 @@ public class TagsWindow : EditorWindow {
         }
         addTagString = GUILayout.TextField(addTagString);
         
+#if UNITY_2021_1_OR_NEWER
         EditorGUILayout.Separator();
         if(GUILayout.Button("Remove selected tag(s)")) {
             foreach(var i in reorderableList.selectedIndices) {
                 tagsSO.RemoveTag(tagsSO.tags[i]);
             }
         }
+#endif
         SaveChanges();
     }
 
