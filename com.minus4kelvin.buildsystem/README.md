@@ -1,4 +1,4 @@
-# Basic Runtime Building System
+# Basic Runtime Building System(WIP)
 
 ### Buildable Prefab Hierarchy
 - Pivot root
@@ -12,7 +12,8 @@
 
 ### Todo
 - Prefabs, example
-- Contextual buildable snapping
-- Configurable buildable itemization
+- Contextual buildable snapping points
+- Building Y verticality: explicit UI or explicit snap points
+- Customizable buildable itemization; remove dependency on Core package Item
 - Optimizations (material, baking, lighting, etc)
 
