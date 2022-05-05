@@ -120,7 +120,10 @@ public class SerializableDictionary<TKey, TValue> : SerializableDictionary, ISer
  
     public void Add (KeyValuePair<TKey, TValue> kvp) => Add( kvp.Key, kvp.Value );
  
-    public void Clear    ()                               => list.Clear();
+    public void Clear() {
+        KeyPositions.Clear();
+        list.Clear();
+    }
     public bool Contains (KeyValuePair<TKey, TValue> kvp) => KeyPositions.ContainsKey(kvp.Key);
  
     public void CopyTo (KeyValuePair<TKey, TValue>[] array, int arrayIndex) {
