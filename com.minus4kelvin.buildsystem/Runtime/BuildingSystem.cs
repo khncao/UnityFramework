@@ -516,9 +516,10 @@ public class BuildingSystem : Singleton<BuildingSystem>
     }
 
     public void Serialize(ref BuildingSystemData data) {
+        if(data == null) data = new BuildingSystemData();
         data.sceneBuiltItems = this.sceneBuiltItems;
     }
-    public void Deserialize(ref BuildingSystemData data) {
+    public void Deserialize(BuildingSystemData data) {
         this.sceneBuiltItems = data.sceneBuiltItems;
     }
 }

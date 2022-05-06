@@ -85,7 +85,8 @@ public class RecordManager : Singleton<RecordManager> {
         }
     }
 
-    public void Serialize(RecordData data) {
+    public void Serialize(ref RecordData data) {
+        if(data == null) data = new RecordData();
         data.records = records;
     }
 

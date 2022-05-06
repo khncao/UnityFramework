@@ -139,6 +139,7 @@ public class CharacterManager : Singleton<CharacterManager>
 
 
     public void Serialize(ref CharacterData characterData) {
+        if(characterData == null) characterData = new CharacterData();
         characterData.characterStates = _characterStates;
     }
     public void Deserialize(CharacterData characterData) {

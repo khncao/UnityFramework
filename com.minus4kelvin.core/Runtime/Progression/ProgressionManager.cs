@@ -141,6 +141,8 @@ public class ProgressionManager : Singleton<ProgressionManager>
     SerializableDictionary<string, int> _interactableStates = new SerializableDictionary<string, int>();
 
     public void Serialize(ref ProgressionData data) {
+        if(data == null) data = new ProgressionData();
+        
         foreach(var i in interactablesDict) {
             if(_interactableStates.ContainsKey(i.Key))
                 _interactableStates[i.Key] = i.Value.interactCount;

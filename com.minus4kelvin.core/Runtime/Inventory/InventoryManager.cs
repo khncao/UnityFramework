@@ -199,6 +199,7 @@ public class InventoryManager : Singleton<InventoryManager>//, IStateSerializabl
     }
 
     public void Serialize(ref InventoryData data) {
+        if(data == null) data = new InventoryData();
         data.inventories = inventoryDict;
         data.inventoryCollections = inventoryCollections;
     }

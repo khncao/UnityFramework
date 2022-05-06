@@ -218,6 +218,7 @@ public class SpawnManager : Singleton<SpawnManager> {
     // Serialization
 
     public void Serialize(ref SpawnedObjectSavedData data) {
+        if(data == null) data = new SpawnedObjectSavedData();
         foreach(var d in sceneObjectData)
             UpdateSavedInstanceData(d.Value);
 
