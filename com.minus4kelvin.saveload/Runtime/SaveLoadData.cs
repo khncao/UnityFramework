@@ -106,9 +106,10 @@ public class SaveLoadData<T> : ISaveLoadable where T : GameDataBase
     }
 
     public void Load(int index) {
-        if(!SceneHandler.I.isMainMenu) {
+        if(SaveLoadManager.loadIndex == -1) {
             SaveLoadManager.loadIndex = index;
             SceneHandler.I.ReturnToMainMenu();
+            return;
         }
         var fileName = $"{SaveLoadManager.SaveFilePrefix}{index}";
 

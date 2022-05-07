@@ -104,7 +104,7 @@ public class SceneHandler : Singleton<SceneHandler>
         LoadScene(sceneName, additive, setActiveScene);
     }
     public void LoadScene(string sceneName, bool additive, bool setActiveScene) {
-        if(sceneName == mainMenuScene.SceneName) {
+        if(sceneName == mainMenuScene.SceneName && !additive) {
             SceneManager.LoadScene(sceneName);
             return;
         }
