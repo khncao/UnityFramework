@@ -12,17 +12,20 @@ public class SceneDependency {
 }
 public class SceneHandler : Singleton<SceneHandler>
 {
-    public SceneReference mainMenuScene, newGameScene;
+    [Tooltip("This component should be in the mainMenuScene,\nwhich should be loaded first(first in build order).\nIf single scene game, set as mainMenuScene")]
+    public SceneReference mainMenuScene;
+    public SceneReference newGameScene;
+    public List<SceneDependency> sceneDependencies;
+
     public Action onSceneChanged, onSceneLoaded, onSceneUnloaded, onStartSceneChange, onFinishLoadAsync, onReturnToTitle;
     public Action<float> onSceneLoadProgress;
-    public Scene currScene;
-    public int prevSceneIndex = -1;
-    public List<SceneDependency> sceneDependencies;
     
     public int latestLoadedSceneIndex { get { return currSceneIndex; }}
     public Scene activeScene { get { return SceneManager.GetActiveScene(); }}
     public bool isMainMenu { get { return activeScene.name == mainMenuScene.SceneName; }}
 
+    Scene currScene;
+    int prevSceneIndex = -1;
     int currSceneIndex;
     HashSet<string> loadedScenes = new HashSet<string>();
     AsyncOperation loadSceneAsync;
@@ -101,7 +104,7 @@ public class SceneHandler : Singleton<SceneHandler>
         LoadScene(sceneName, additive, setActiveScene);
     }
     public void LoadScene(string sceneName, bool additive, bool setActiveScene) {
-        if(sceneName == mainMenuScene.SceneName) {
+        if(sceneName == mainMenuScene.SceneName && !additive) {
             SceneManager.LoadScene(sceneName);
             return;
         }
@@ -120,12 +123,15 @@ public class SceneHandler : Singleton<SceneHandler>
 
     IEnumerator LoadSceneAsync(string sceneName, bool additive, bool setActiveScene) 
     {
-        List<SceneReference> dependencies = GetSceneDependencies(sceneName);
-        for(int i = 0; i < dependencies.Count; ++i) {
-            if(loadedScenes.Contains(dependencies[i].SceneName))
-                continue;
-            yield return SceneManager.LoadSceneAsync(dependencies[i].SceneName, LoadSceneMode.Additive);
-            loadedScenes.Add(dependencies[i].SceneName);
+        SceneDependency dependency = GetSceneDependencies(sceneName);
+        if(dependency != null) {
+            List<SceneReference> dependencies = dependency.required;
+            for(int i = 0; i < dependencies.Count; ++i) {
+                if(loadedScenes.Contains(dependencies[i].SceneName))
+                    continue;
+                yield return SceneManager.LoadSceneAsync(dependencies[i].SceneName, LoadSceneMode.Additive);
+                loadedScenes.Add(dependencies[i].SceneName);
+            }
         }
         loadSceneAsync = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
         
@@ -156,8 +162,8 @@ public class SceneHandler : Singleton<SceneHandler>
     // public GameScene GetSceneByName(string sceneName) {
     //     return sceneDB.scenes.Find(x=>x.sceneName == sceneName);
     // }
-    List<SceneReference> GetSceneDependencies(string sceneName) {
-        return sceneDependencies.Find(x=>x.scene.SceneName == sceneName).required;
+    SceneDependency GetSceneDependencies(string sceneName) {
+        return sceneDependencies.Find(x=>x.scene.SceneName == sceneName);
     }
 }
 }

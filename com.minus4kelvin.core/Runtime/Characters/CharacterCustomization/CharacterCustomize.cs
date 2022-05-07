@@ -288,9 +288,10 @@ public class CharacterCustomize : Singleton<CharacterCustomize>
     }
 
     public void Serialize(ref CharacterCustomizationData data) {
+        if(data == null) data = new CharacterCustomizationData();
         data.customizeOptions = characterCustomizations;
     }
-    public void Deserialize(ref CharacterCustomizationData data) {
+    public void Deserialize(CharacterCustomizationData data) {
         characterCustomizations = data.customizeOptions;
     }
 }

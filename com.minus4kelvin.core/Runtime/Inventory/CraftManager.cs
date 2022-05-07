@@ -306,6 +306,7 @@ public class CraftManager : Singleton<CraftManager>
     }
     
     public void Serialize(ref CraftData craftData) {
+        if(craftData == null) craftData = new CraftData();
         craftData.inprogressCrafts = _inprogressCrafts;
     }
 
@@ -313,7 +314,7 @@ public class CraftManager : Singleton<CraftManager>
     /// Should be called after InventoryManager deserialize
     /// </summary>
     /// <param name="craftData"></param>
-    public void Deserialize(ref CraftData craftData) {
+    public void Deserialize(CraftData craftData) {
         _inprogressCrafts = craftData.inprogressCrafts;
         foreach(var craft in _inprogressCrafts) {
             craft.Value.recipe = AssetRegistry.I.GetItemFromName(craft.Value.recipeName) as ItemRecipe;
