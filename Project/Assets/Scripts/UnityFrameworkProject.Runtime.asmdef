@@ -1,0 +1,20 @@
+{
+    "name": "UnityFrameworkProject.Runtime",
+    "rootNamespace": "",
+    "references": [
+        "GUID:3b867d904b1c47c42850953940f06f4c",
+        "GUID:c18bd4b5d7a2f1243890ac0ba13019f8",
+        "GUID:b39e51532aaf1aa42afe103341854a22",
+        "GUID:c6d34c800fe4b28428984fc86a03b0ee",
+        "GUID:39707fc240f4b1a489d168e44fb19f48"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

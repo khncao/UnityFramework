@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 24e5717de43f2784ebe60e6e53ccf3e5, type: 3}
+  m_Name: Upgrade2
+  m_EditorClassIdentifier: 
+  displayName: Upgrade2
+  maxLevel: 999
+  costCurrency: {fileID: 0}
+  costAmount:
+    id: 
+    baseValue: 0
+  levelModifierPoints:
+    list:
+    - Key: 0
+      Value: 2
+    - Key: 5
+      Value: 4
+    - Key: 10
+      Value: 8
