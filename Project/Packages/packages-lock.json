@@ -22,10 +22,18 @@
       "source": "local",
       "dependencies": {
         "com.unity.textmeshpro": "3.0.6",
-        "com.unity.cinemachine": "2.7.3",
+        "com.unity.cinemachine": "2.6.11",
         "com.unity.timeline": "1.5.5",
         "com.unity.addressables": "1.19.19",
         "com.unity.inputsystem": "1.3.0"
+      }
+    },
+    "com.minus4kelvin.incremental": {
+      "version": "file:../../com.minus4kelvin.incremental",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.minus4kelvin.core": "0.8.0"
       }
     },
     "com.minus4kelvin.saveload": {
@@ -52,7 +60,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.cinemachine": {
-      "version": "2.7.3",
+      "version": "2.6.11",
       "depth": 1,
       "source": "registry",
       "dependencies": {},
