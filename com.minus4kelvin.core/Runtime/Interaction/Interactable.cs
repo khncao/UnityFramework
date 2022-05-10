@@ -20,7 +20,7 @@ public class Interactable : MonoBehaviour, IInteractable
 {
     [System.Serializable]
     public class InteractableUnityEvents {
-        [Header("OnInteractToggle is always called on load.\nEnable onInteractOnLoad to also call\nOnInteract events on load(interactCount>0)")]
+        [Tooltip("OnInteractToggle is always called on load.\nEnable onInteractOnLoad to also call\nOnInteract events on load(interactCount>0)")]
         public ToggleUnityEvent onInteractToggle;
         public UnityEvent onInteractable, onInteract, onNonInteractable;
         public bool onInteractOnLoad;
