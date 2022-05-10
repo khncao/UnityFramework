@@ -9,7 +9,7 @@ namespace m4k.Incremental {
 public class IncrementalTests
 {
     IncrementalManager incrementalManager;
-    Currency currency1, currency2;
+    Asset currency1, currency2;
     Asset asset1, asset2, clickAsset;
 
     [SetUp]
@@ -18,9 +18,9 @@ public class IncrementalTests
         var gameTime = go.AddComponent<GameTime>();
         gameTime.timeProfile = new GameTime.TimeProfile();
         incrementalManager = go.AddComponent<IncrementalManager>();
-        currency1 = ScriptableObject.CreateInstance<Currency>();
+        currency1 = ScriptableObject.CreateInstance<Asset>();
         currency1.name = "c1";
-        currency2 = ScriptableObject.CreateInstance<Currency>();
+        currency2 = ScriptableObject.CreateInstance<Asset>();
         currency2.name = "c2";
         asset1 = ScriptableObject.CreateInstance<Asset>();
         asset1.name = "a1";
@@ -32,13 +32,13 @@ public class IncrementalTests
 
     [Test]
     public void TestClick() {
-        incrementalManager.AddCurrency(currency1);
-        incrementalManager.TryGetOrCreateCurrencyInstance(currency1.name, out var currency1Instance);
+        incrementalManager.AddAsset(currency1);
+        incrementalManager.TryGetOrCreateAssetInstance(currency1.name, out var currency1Instance);
 
         clickAsset.outputCurrency = currency1;
         clickAsset.outputAmount = new ModdableValue(3);
         incrementalManager.AssignClickAsset(clickAsset);
-        incrementalManager.TransactAmount("click", 1); // 1 click per click
+        incrementalManager.TransactAmount(clickAsset.name, 1); // 1 click per click
 
         Assert.AreEqual(0, (int)currency1Instance.ownedAmount);
         incrementalManager.Click();
@@ -52,16 +52,16 @@ public class IncrementalTests
     [Test]
     public void SerializeAndDeserialize() {
         // init and modify currency amount
-        incrementalManager.AddCurrency(currency1);
-        incrementalManager.TryGetOrCreateCurrencyInstance(currency1.name, out var savedC1);
-        incrementalManager.TransactAmount(savedC1, 10);
-        incrementalManager.TryGetOrCreateCurrencyInstance(currency1.name, out savedC1);
+        incrementalManager.AddAsset(currency1);
+        incrementalManager.TryGetOrCreateAssetInstance(currency1.name, out var savedC1);
+        incrementalManager.TransactAmount(savedC1, 10, false);
+        incrementalManager.TryGetOrCreateAssetInstance(currency1.name, out savedC1);
         Assert.AreEqual(10, (int)savedC1.ownedAmount, "Get modified currency instance");
 
         // asset amount
         incrementalManager.AddAsset(asset1);
         incrementalManager.TryGetOrCreateAssetInstance(asset1.name, out var savedA1);
-        incrementalManager.TransactAmount(savedA1, 5);
+        incrementalManager.TransactAmount(savedA1, 5, false);
         incrementalManager.TryGetOrCreateAssetInstance(asset1.name, out savedA1);
         Assert.AreEqual(5, (int)savedA1.ownedAmount, "Modify asset instance");
 
@@ -70,13 +70,7 @@ public class IncrementalTests
         IncrementalSaveData data = new IncrementalSaveData();
         incrementalManager.Serialize(ref shallowData);
 
-        data.currencyInstances = new SerializableDictionary<string, CurrencyInstance>();
         data.assetInstances = new SerializableDictionary<string, AssetInstance>();
-        var currencies = incrementalManager.GetCurrencyInstances();
-        while(currencies.MoveNext()) {
-            data.currencyInstances.Add(currencies.Current.Key, currencies.Current.Value);
-        }
-
         var assets = incrementalManager.GetAssetInstances();
         while(assets.MoveNext()) {
             data.assetInstances.Add(assets.Current.Key, assets.Current.Value);
@@ -86,16 +80,16 @@ public class IncrementalTests
         incrementalManager.Reset();
 
         // assert properly reset
-        Assert.False(incrementalManager.TryGetOrCreateCurrencyInstance(currency1.name, out savedC1));
+        Assert.False(incrementalManager.TryGetOrCreateAssetInstance(currency1.name, out savedC1));
 
         // assert data intact
-        Assert.AreEqual(10, (int)data.currencyInstances[currency1.name].ownedAmount, "Saved currency instance owned amount after serialize and reset");
+        Assert.AreEqual(10, (int)data.assetInstances[currency1.name].ownedAmount, "Saved currency instance owned amount after serialize and reset");
 
         // deserialize data, setup, and assert data restored
         incrementalManager.Deserialize(data);
 
-        incrementalManager.AddCurrency(currency1);
-        incrementalManager.TryGetOrCreateCurrencyInstance(currency1.name, out var loadedC1);
+        incrementalManager.AddAsset(currency1);
+        incrementalManager.TryGetOrCreateAssetInstance(currency1.name, out var loadedC1);
         Assert.AreEqual(10, (int)loadedC1.ownedAmount);
 
         incrementalManager.AddAsset(asset1);

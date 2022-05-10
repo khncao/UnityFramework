@@ -6,7 +6,13 @@ using m4k.ModdableValues;
 
 namespace m4k.Incremental {
 [System.Serializable]
-public class AssetInstance : CurrencyInstance {
+public class AssetInstance : ISerializationCallbackReceiver {
+    public string name;
+    
+    [SerializeField]
+    string _ownedAmount;
+    public BigInteger ownedAmount;
+
     [System.NonSerialized]
     Asset _asset;
     public Asset asset { get {
@@ -15,7 +21,7 @@ public class AssetInstance : CurrencyInstance {
         return _asset;
     }}
 
-    public AssetInstance(Asset asset) : base(asset) {
+    public AssetInstance(Asset asset) {
         this._asset = asset;
         this.name = asset.name;
 
@@ -63,17 +69,28 @@ public class AssetInstance : CurrencyInstance {
 
         return s.ToString();
     }
+
+    public void OnBeforeSerialize() {
+        _ownedAmount = ownedAmount.ToString();
+    }
+    public void OnAfterDeserialize() {
+        BigInteger.TryParse(_ownedAmount, out ownedAmount);
+    }
 }
 
 [CreateAssetMenu(fileName = "Asset", menuName = "Data/Incremental/Asset", order = 0)]
-public class Asset : Currency {
+public class Asset : ScriptableObject {
+    public string displayName;
+    public string description;
+    public int startAmount;
+
     public bool hideInUI;
     [Header("Cost")]
-    public Currency costCurrency;
+    public Asset costCurrency;
     public ModdableValue costAmount;
     public Upgrade costUpgrade;
     [Header("Output")]
-    public Currency outputCurrency;
+    public Asset outputCurrency;
     public ModdableValue outputAmount;
     public Upgrade outputUpgrade;
 }}

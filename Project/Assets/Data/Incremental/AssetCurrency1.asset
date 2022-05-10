@@ -9,9 +9,20 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e726156baa3a0324ab365c9c99cb9dd0, type: 3}
-  m_Name: Currency1
+  m_Script: {fileID: 11500000, guid: 86eff7bb7539c0e479ae72de1a9b4e22, type: 3}
+  m_Name: AssetCurrency1
   m_EditorClassIdentifier: 
   displayName: Currency1
   description: 
   startAmount: 5
+  hideInUI: 0
+  costCurrency: {fileID: 0}
+  costAmount:
+    id: 
+    baseValue: 0
+  costUpgrade: {fileID: 0}
+  outputCurrency: {fileID: 0}
+  outputAmount:
+    id: 
+    baseValue: 0
+  outputUpgrade: {fileID: 0}

@@ -58,6 +58,6 @@ public class Upgrade : ScriptableObject {
     public float perLevelDiminishPercent;
 
     [Header("Cost")]
-    public Currency costCurrency;
+    public Asset costCurrency;
     public ModdableValue costAmount;
 }}

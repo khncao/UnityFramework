@@ -22,10 +22,8 @@ public abstract class IncrementalUIBase : MonoBehaviour {
         OnDisable();
         incrementalManager.onTick += OnTick;
         incrementalManager.onClick += OnClick;
-        incrementalManager.onCurrencyChanged += OnCurrencyChanged;
         incrementalManager.onAssetChanged += OnAssetChanged;
         incrementalManager.onUpgradeChanged += OnUpgradeChanged;
-        incrementalManager.onInitOrLoadCurrencyInstance += OnInitOrLoadCurrency;
         incrementalManager.onInitOrLoadAssetInstance += OnInitOrLoadAsset;
         incrementalManager.onInitOrLoadUpgradeInstance += OnInitOrLoadUpgrade;
         incrementalManager.onTriggerRefresh += OnTriggerRefresh;
@@ -34,10 +32,8 @@ public abstract class IncrementalUIBase : MonoBehaviour {
     public virtual void OnDisable() {
         incrementalManager.onTick -= OnTick;
         incrementalManager.onClick -= OnClick;
-        incrementalManager.onCurrencyChanged -= OnCurrencyChanged;
         incrementalManager.onAssetChanged -= OnAssetChanged;
         incrementalManager.onUpgradeChanged -= OnUpgradeChanged;
-        incrementalManager.onInitOrLoadCurrencyInstance -= OnInitOrLoadCurrency;
         incrementalManager.onInitOrLoadAssetInstance -= OnInitOrLoadAsset;
         incrementalManager.onInitOrLoadUpgradeInstance -= OnInitOrLoadUpgrade;
         incrementalManager.onTriggerRefresh -= OnTriggerRefresh;
@@ -45,10 +41,8 @@ public abstract class IncrementalUIBase : MonoBehaviour {
 
     public abstract void OnTick();
     public abstract void OnClick();
-    public abstract void OnCurrencyChanged(CurrencyInstance currencyInstance);
     public abstract void OnAssetChanged(AssetInstance assetInstance);
     public abstract void OnUpgradeChanged(UpgradeInstance upgradeInstance);
-    public virtual void OnInitOrLoadCurrency(CurrencyInstance currencyInstance) {}
     public virtual void OnInitOrLoadAsset(AssetInstance assetInstance) {}
     public virtual void OnInitOrLoadUpgrade(UpgradeInstance upgradeInstance) {}
     public virtual void OnTriggerRefresh() {}
@@ -76,14 +70,13 @@ public class IncrementalUI : IncrementalUIBase {
     GameObject currentSelection;
 
     public override void OnTick() {
-        UpdateAllCurrencyText();
+        UpdateAllAssets();
     }
 
     public override void OnClick() {
         OnTick();
     }
 
-    public override void OnCurrencyChanged(CurrencyInstance currencyInstance) {}
 
     public override void OnAssetChanged(AssetInstance assetInstance) {
         if(assetInstance == null) {
@@ -99,10 +92,6 @@ public class IncrementalUI : IncrementalUIBase {
 
     public override void OnUpgradeChanged(UpgradeInstance upgradeInstance) {}
 
-    public override void OnInitOrLoadCurrency(CurrencyInstance currencyInstance) {
-        if(currencyUIPrefab == null || currencyUIParent == null)
-            return;
-    }
 
     public override void OnInitOrLoadAsset(AssetInstance assetInstance) {
         if(assetUIPrefab == null || assetUIParent == null) {
@@ -128,7 +117,7 @@ public class IncrementalUI : IncrementalUIBase {
     public override void OnInitOrLoadUpgrade(UpgradeInstance upgradeInstance) {}
 
     public override void OnTriggerRefresh() {
-        UpdateAllCurrencyText();
+        UpdateAllAssets();
         if(currentSelection)
             OnSelectionChange(currentSelection);
     }
@@ -144,16 +133,13 @@ public class IncrementalUI : IncrementalUIBase {
         }
     }
 
-    void UpdateAllCurrencyText() {
-        if(!currenciesText) return;
-        System.Text.StringBuilder s = new System.Text.StringBuilder();
-
-        var currencies = incrementalManager.GetCurrencyInstances();
-        while(currencies.MoveNext()) {
-            var c = currencies.Current;
-            s.Append($"{c.Value.ToString()} {c.Value.ownedAmount}\n");
+    void UpdateAllAssets() {
+        var assets = incrementalManager.GetAssetInstances();
+        while(assets.MoveNext()) {
+            var a = assets.Current;
+            if(a.Value.asset.hideInUI) continue;
+            OnAssetChanged(a.Value);
         }
-        currenciesText.text = s.ToString();
     }
 
     void UpdateAllAssetText() {

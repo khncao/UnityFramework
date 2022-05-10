@@ -13,12 +13,16 @@ MonoBehaviour:
   m_Name: Asset2
   m_EditorClassIdentifier: 
   displayName: Asset2
-  costCurrency: {fileID: 11400000, guid: dbf4ec6f86911474ca8bfb6847f3ef4d, type: 2}
+  description: 
+  startAmount: 0
+  hideInUI: 0
+  costCurrency: {fileID: 11400000, guid: 590440ea1aec92142974c8d494bff366, type: 2}
   costAmount:
     id: 
     baseValue: 100
-  outputCurrency: {fileID: 11400000, guid: dbf4ec6f86911474ca8bfb6847f3ef4d, type: 2}
+  costUpgrade: {fileID: 0}
+  outputCurrency: {fileID: 11400000, guid: 590440ea1aec92142974c8d494bff366, type: 2}
   outputAmount:
     id: 
     baseValue: 1
-  upgrades: []
+  outputUpgrade: {fileID: 0}
