@@ -35,7 +35,7 @@ public class IncrementalManager : Singleton<IncrementalManager> {
     [NonSerialized]
     CurrencyInstance clickOutputCurrencyInstance;
 
-    public event Action onClick, onTick;
+    public event Action onClick, onTick, onTriggerRefresh;
     public event Action<AssetInstance> onAssetChanged;
     public event Action<CurrencyInstance> onCurrencyChanged;
     public event Action<UpgradeInstance> onUpgradeChanged;
@@ -79,6 +79,7 @@ public class IncrementalManager : Singleton<IncrementalManager> {
             foreach(var i in upgrades)
                 TryGetOrCreateUpgradeInstance(i.name, out var upgradeInstance);
         }
+        onTriggerRefresh?.Invoke();
         AssignClickAsset(clickAsset);
     }
 
@@ -150,6 +151,7 @@ public class IncrementalManager : Singleton<IncrementalManager> {
         }
         assetInstance.ownedAmount += amount;
         onAssetChanged?.Invoke(assetInstance);
+        onTriggerRefresh?.Invoke();
     }
 
     public void TransactAmount(UpgradeInstance upgradeInstance, long amount) {
@@ -174,11 +176,13 @@ public class IncrementalManager : Singleton<IncrementalManager> {
         }
         upgradeInstance.ownedAmount += amount;
         onUpgradeChanged?.Invoke(upgradeInstance);
+        onTriggerRefresh?.Invoke();
     }
 
     public void TransactAmount(CurrencyInstance currencyInstance, long amount) {
         currencyInstance.ownedAmount += amount;
         onCurrencyChanged?.Invoke(currencyInstance);
+        onTriggerRefresh?.Invoke();
     }
 
     // Get or create data instances for currency, assets, upgrades; call init if create

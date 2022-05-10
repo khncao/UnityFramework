@@ -7,8 +7,6 @@ using m4k.ModdableValues;
 namespace m4k.Incremental {
 [System.Serializable]
 public class AssetInstance : CurrencyInstance {
-    public string testString = "99";
-    
     [System.NonSerialized]
     Asset _asset;
     public Asset asset { get {
@@ -50,6 +48,20 @@ public class AssetInstance : CurrencyInstance {
 
     public override string ToString() {
         return $"{asset.displayName}";
+    }
+
+    public string ToFullString() {
+        System.Text.StringBuilder s = new System.Text.StringBuilder();
+
+        s.AppendLine(asset.displayName);
+        s.AppendLine(asset.description + '\n');
+        s.AppendLine($"{ownedAmount} owned");
+        if(asset.costCurrency)
+            s.AppendLine($"{asset.costAmount.Value} {asset.costCurrency.displayName} cost");
+        if(asset.outputCurrency)
+            s.AppendLine($"{asset.outputAmount.Value} {asset.outputCurrency.displayName} per tick output");
+
+        return s.ToString();
     }
 }
 

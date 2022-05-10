@@ -28,6 +28,7 @@ public abstract class IncrementalUIBase : MonoBehaviour {
         incrementalManager.onInitOrLoadCurrencyInstance += OnInitOrLoadCurrency;
         incrementalManager.onInitOrLoadAssetInstance += OnInitOrLoadAsset;
         incrementalManager.onInitOrLoadUpgradeInstance += OnInitOrLoadUpgrade;
+        incrementalManager.onTriggerRefresh += OnTriggerRefresh;
     }
     
     public virtual void OnDisable() {
@@ -39,6 +40,7 @@ public abstract class IncrementalUIBase : MonoBehaviour {
         incrementalManager.onInitOrLoadCurrencyInstance -= OnInitOrLoadCurrency;
         incrementalManager.onInitOrLoadAssetInstance -= OnInitOrLoadAsset;
         incrementalManager.onInitOrLoadUpgradeInstance -= OnInitOrLoadUpgrade;
+        incrementalManager.onTriggerRefresh -= OnTriggerRefresh;
     }
 
     public abstract void OnTick();
@@ -49,6 +51,8 @@ public abstract class IncrementalUIBase : MonoBehaviour {
     public virtual void OnInitOrLoadCurrency(CurrencyInstance currencyInstance) {}
     public virtual void OnInitOrLoadAsset(AssetInstance assetInstance) {}
     public virtual void OnInitOrLoadUpgrade(UpgradeInstance upgradeInstance) {}
+    public virtual void OnTriggerRefresh() {}
+    public virtual void OnSelectionChange(GameObject go) {}
 }
 
 
@@ -61,10 +65,15 @@ public class IncrementalUI : IncrementalUIBase {
     public GameObject currencyUIPrefab;
     public GameObject assetUIPrefab;
 
+    public Transform upgradeUIParent;
+    public GameObject upgradeUIPrefab;
+
     public TMP_Text currenciesText;
     public TMP_Text assetsText;
+    public TMP_Text selectionDescriptionText;
 
     Dictionary<AssetInstance, AssetUI> assetInstantUIDict = new Dictionary<AssetInstance, AssetUI>();
+    GameObject currentSelection;
 
     public override void OnTick() {
         UpdateAllCurrencyText();
@@ -112,11 +121,28 @@ public class IncrementalUI : IncrementalUIBase {
             Debug.LogWarning("AssetUI component not found on asset UI prefab root");
             return;
         }
-        assetUI.AssignAssetInstance(assetInstance);
+        assetUI.AssignAssetInstance(assetInstance, this);
         assetInstantUIDict.Add(assetInstance, assetUI);
     }
 
     public override void OnInitOrLoadUpgrade(UpgradeInstance upgradeInstance) {}
+
+    public override void OnTriggerRefresh() {
+        UpdateAllCurrencyText();
+        if(currentSelection)
+            OnSelectionChange(currentSelection);
+    }
+
+    public override void OnSelectionChange(GameObject go) {
+        currentSelection = go;
+        if(!selectionDescriptionText) return;
+        if(go.TryGetComponent<AssetUI>(out var assetUI)) {
+            selectionDescriptionText.text = assetUI.currentAssetInstance.ToFullString();
+        }
+        else if(go.TryGetComponent<UpgradeUI>(out var upgradeUI)) {
+            selectionDescriptionText.text = upgradeUI.currentUpgradeInstance.ToFullString();
+        }
+    }
 
     void UpdateAllCurrencyText() {
         if(!currenciesText) return;
