@@ -65,7 +65,7 @@ public struct Wander : IState {
 
 [System.Serializable]
 public class WanderWrapper : StateWrapper {
-    [Header("Leave at default 0, 0, 0 to pivot\nfrom current processor position")]
+    [Tooltip("Leave at default 0, 0, 0 to pivot\nfrom current processor position")]
     public Vector3 pivotPosition;
     public float radius;
 
@@ -76,7 +76,7 @@ public class WanderWrapper : StateWrapper {
 
 [CreateAssetMenu(fileName = "WanderCommand", menuName = "Data/AI/States/WanderCommand", order = 0)]
 public class WanderCommand : StateWrapperBase {
-    [Header("Leave at default 0, 0, 0 to pivot\nfrom current processor position")]
+    [Tooltip("Leave at default 0, 0, 0 to pivot\nfrom current processor position")]
     public Vector3 pivotPosition;
     public float radius;
 

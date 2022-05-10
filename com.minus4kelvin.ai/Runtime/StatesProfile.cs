@@ -26,16 +26,16 @@ public class StatesProfile : ScriptableObject {
         public StateWrapperBase stateWrapperBase;
     }
 
-    [Header("Get highest priority state with conditions met\nCompetes with top state of processor state queue")]
+    [Tooltip("Get highest priority state with conditions met\nCompetes with top state of processor state queue")]
     [InspectInline]
     public List<StateWrapperBase> stateWrapperBases;
     [InspectInline]
     public StateWrapperBase defaultStateWrapperBase;
 
-    [Header("States handled on event invoke")]
+    [Tooltip("States handled on event invoke")]
     public List<EventState> persistentEventStateListeners;
 
-    [Header("Tag, track, maintain references; for nested editing\n Use context menu to populate all subassets of this asset")]
+    [Tooltip("Tag, track, maintain references; for nested editing\n Use context menu to populate all subassets of this asset")]
     public List<NotedWrapper> sketchboard;
 
     Dictionary<StateProcessor, Dictionary<StateWrapperBase, IState>> processorStateCache = new Dictionary<StateProcessor, Dictionary<StateWrapperBase, IState>>();

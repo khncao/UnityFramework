@@ -35,6 +35,18 @@ public class UpgradeInstance {
     public override string ToString() {
         return $"{upgrade.displayName}";
     }
+
+    public string ToFullString() {
+        System.Text.StringBuilder s = new System.Text.StringBuilder();
+
+        s.AppendLine(upgrade.displayName);
+        s.AppendLine(upgrade.description + '\n');
+        s.AppendLine($"{ownedAmount} / {upgrade.maxLevel}");
+        if(upgrade.costCurrency)
+            s.AppendLine($"{upgrade.costAmount.Value} {upgrade.costCurrency.displayName} cost");
+
+        return s.ToString();
+    }
 }
 
 [CreateAssetMenu(fileName = "Upgrade", menuName = "Data/Incremental/Upgrade", order = 0)]

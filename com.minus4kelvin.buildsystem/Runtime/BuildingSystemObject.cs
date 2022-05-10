@@ -8,7 +8,7 @@ using m4k.Items;
 namespace m4k.BuildSystem {
 public class BuildingSystemObject : MonoBehaviour, IBuildable
 {
-    [Header("Rb and cols should be on or in children of this object.\nThis object should be direct child of prefab root")]
+    [Tooltip("Rb and cols should be on or in children of this object.\nThis object should be direct child of prefab root")]
     public Item item;
     public bool allowEdit = true;
     public bool keepActiveRb = false;

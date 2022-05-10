@@ -7,7 +7,7 @@ namespace m4k.Items {
 public class InventoryComponent : MonoBehaviour
 {
     public int inventorySlots = 16;
-    [Header("Will register as saved inventory if saveId not empty,\nGuidComponent on same gameObject,\nor CharacterControl on same gameObject in that order")]
+    [Tooltip("Will register as saved inventory if saveId not empty,\nGuidComponent on same gameObject,\nor CharacterControl on same gameObject in that order")]
     public string saveId;
 
     public string id { get; set; }

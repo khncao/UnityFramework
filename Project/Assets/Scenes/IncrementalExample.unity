@@ -134,6 +134,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -0.00018751148
       objectReference: {fileID: 0}
+    - target: {fileID: 1653505327976059401, guid: 996495da0bb6aaf409a49ef569996e3f, type: 3}
+      propertyPath: selectionDescriptionText
+      value: 
+      objectReference: {fileID: 1173168352}
     - target: {fileID: 1709930402061503813, guid: 996495da0bb6aaf409a49ef569996e3f, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
@@ -157,6 +161,10 @@ PrefabInstance:
     - target: {fileID: 2989804437850669396, guid: 996495da0bb6aaf409a49ef569996e3f, type: 3}
       propertyPath: m_SizeDelta.x
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4010162469281628141, guid: 996495da0bb6aaf409a49ef569996e3f, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5542498509836379625, guid: 996495da0bb6aaf409a49ef569996e3f, type: 3}
       propertyPath: m_AnchorMax.x
@@ -228,7 +236,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7791687037829349443, guid: 996495da0bb6aaf409a49ef569996e3f, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -0.0000038146973
+      value: 0.00000384
       objectReference: {fileID: 0}
     - target: {fileID: 7862402900198006719, guid: 996495da0bb6aaf409a49ef569996e3f, type: 3}
       propertyPath: m_AnchorMax.y
@@ -261,6 +269,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 056208f36494b95458863869a6c6c332, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1173168352 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6405501103138587264, guid: 996495da0bb6aaf409a49ef569996e3f, type: 3}
+  m_PrefabInstance: {fileID: 99465274}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &1851489396
