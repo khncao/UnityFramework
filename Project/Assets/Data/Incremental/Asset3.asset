@@ -13,12 +13,16 @@ MonoBehaviour:
   m_Name: Asset3
   m_EditorClassIdentifier: 
   displayName: Asset3
+  description: 
+  startAmount: 0
+  hideInUI: 0
   costCurrency: {fileID: 0}
   costAmount:
     id: 
     baseValue: 0
-  outputCurrency: {fileID: 11400000, guid: 97942ccb9c5ca774893f468143c83f72, type: 2}
+  costUpgrade: {fileID: 0}
+  outputCurrency: {fileID: 11400000, guid: 590440ea1aec92142974c8d494bff366, type: 2}
   outputAmount:
     id: 
     baseValue: 1
-  upgrades: []
+  outputUpgrade: {fileID: 0}

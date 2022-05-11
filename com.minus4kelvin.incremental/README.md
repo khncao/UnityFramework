@@ -1,7 +1,7 @@
 # Incremental Game System(WIP)
 
 Features:
-- Ticks and clicks for incrementing currencies
+- Ticks and clicks for incrementing assets
 - Progression calculation based on "offline" elapsed time
 - Basic UI
 

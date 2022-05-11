@@ -8,16 +8,12 @@ namespace m4k.Incremental {
 [Serializable]
 public class IncrementalSaveData {
     public long saveTime;
-    public SerializableDictionary<string, CurrencyInstance> currencyInstances;
     public SerializableDictionary<string, AssetInstance> assetInstances;
     public SerializableDictionary<string, UpgradeInstance> upgradeInstances;
 }
 
 public class IncrementalManager : Singleton<IncrementalManager> {
     // asset lookup
-    // TODO: move to dependence asset manager
-    [SerializeField, InspectInline]
-    List<Currency> currencies;
     [SerializeField, InspectInline]
     List<Upgrade> upgrades;
     [SerializeField, InspectInline]
@@ -33,17 +29,14 @@ public class IncrementalManager : Singleton<IncrementalManager> {
     [NonSerialized]
     AssetInstance clickAssetInstance;
     [NonSerialized]
-    CurrencyInstance clickOutputCurrencyInstance;
+    AssetInstance clickOutputCurrencyInstance;
 
     public event Action onClick, onTick, onTriggerRefresh;
     public event Action<AssetInstance> onAssetChanged;
-    public event Action<CurrencyInstance> onCurrencyChanged;
     public event Action<UpgradeInstance> onUpgradeChanged;
-    public event Action<CurrencyInstance> onInitOrLoadCurrencyInstance;
     public event Action<AssetInstance> onInitOrLoadAssetInstance;
     public event Action<UpgradeInstance> onInitOrLoadUpgradeInstance;
 
-    SerializableDictionary<string, CurrencyInstance> currencyInstanceDict = new SerializableDictionary<string, CurrencyInstance>();
     SerializableDictionary<string, AssetInstance> assetInstanceDict = new SerializableDictionary<string, AssetInstance>();
     SerializableDictionary<string, UpgradeInstance> upgradeInstanceDict = new SerializableDictionary<string, UpgradeInstance>();
 
@@ -56,7 +49,6 @@ public class IncrementalManager : Singleton<IncrementalManager> {
         GameTime.I.onTick += Tick;
         UIBase?.Initialize(this); // explicitly init UI for order
 
-        if(currencies == null) currencies = new List<Currency>();
         if(assets == null) assets = new List<Asset>();
         if(upgrades == null) upgrades = new List<Upgrade>();
         
@@ -64,16 +56,12 @@ public class IncrementalManager : Singleton<IncrementalManager> {
         
         if(loadedFromSave) { // if loaded from save
             ProcessElapsedTime();
-            foreach(var i in currencyInstanceDict)
-                onInitOrLoadCurrencyInstance?.Invoke(i.Value);
             foreach(var i in assetInstanceDict)
                 onInitOrLoadAssetInstance?.Invoke(i.Value);
             foreach(var i in upgradeInstanceDict)
                 onInitOrLoadUpgradeInstance?.Invoke(i.Value);
         }
         else { // create data instances for predefined currencies and assets
-            foreach(var i in currencies)
-                TryGetOrCreateCurrencyInstance(i.name, out var currencyInstance);
             foreach(var i in assets)
                 TryGetOrCreateAssetInstance(i.name, out var assetInstance);
             foreach(var i in upgrades)
@@ -89,7 +77,8 @@ public class IncrementalManager : Singleton<IncrementalManager> {
     /// <param name="multiplier"></param>
     void ProcessAssetOutputs(float multiplier) {
         foreach(var i in assetInstanceDict) {
-            if(TryGetOrCreateCurrencyInstance(i.Value.asset.outputCurrency.name, out var currencyInstance)) {
+            if(!i.Value.asset.outputCurrency) continue;
+            if(TryGetOrCreateAssetInstance(i.Value.asset.outputCurrency.name, out var currencyInstance)) {
                 currencyInstance.ownedAmount 
                     += i.Value.GetTotalOutputAmount()
                     * (BigInteger)multiplier;
@@ -115,18 +104,16 @@ public class IncrementalManager : Singleton<IncrementalManager> {
 
     // modify ownedAmount; accounts for currency cost
 
-    public void TransactAmount(string id, long amount) {
+    public void TransactAmount(string id, long amount, bool processCost = true) {
         if(TryGetOrCreateAssetInstance(id, out var asset))
-            TransactAmount(asset, amount);
+            TransactAmount(asset, amount, processCost);
         else if(TryGetOrCreateUpgradeInstance(id, out var upgrade))
-            TransactAmount(upgrade, amount);
-        else if(TryGetOrCreateCurrencyInstance(id, out var currency))
-            TransactAmount(currency, amount);
+            TransactAmount(upgrade, amount, processCost);
         else if(id == clickAsset.name)
-            TransactAmount(clickAssetInstance, amount);
+            clickAssetInstance.ownedAmount += amount;
     }
 
-    public void TransactAmount(AssetInstance assetInstance, long amount) {
+    public void TransactAmount(AssetInstance assetInstance, long amount, bool processCost = true) {
         var resultAmount = assetInstance.ownedAmount + amount;
         if(resultAmount < 0) {
             amount = (long)assetInstance.ownedAmount;
@@ -136,10 +123,15 @@ public class IncrementalManager : Singleton<IncrementalManager> {
             return;
         }
 
-        if(assetInstance.asset.costCurrency) {
+        if(processCost) {
+            if(!assetInstance.asset.costCurrency) {
+                Debug.LogWarning($"{assetInstance.asset.name} has no cost currency");
+                return;
+            }
+
             BigInteger totalCost = assetInstance.GetTotalQuantityCost(amount);
 
-            if(!TryGetOrCreateCurrencyInstance(assetInstance.asset.costCurrency.name, out var costCurrencyInstance)) {
+            if(!TryGetOrCreateAssetInstance(assetInstance.asset.costCurrency.name, out var costCurrencyInstance)) {
                 Debug.Log($"{assetInstance.name} cost currency not found");
                 return;
             }
@@ -149,22 +141,28 @@ public class IncrementalManager : Singleton<IncrementalManager> {
             }
             costCurrencyInstance.ownedAmount -= totalCost;
         }
+
         assetInstance.ownedAmount += amount;
         onAssetChanged?.Invoke(assetInstance);
         onTriggerRefresh?.Invoke();
     }
 
-    public void TransactAmount(UpgradeInstance upgradeInstance, long amount) {
+    public void TransactAmount(UpgradeInstance upgradeInstance, long amount, bool processCost = true) {
         var resultAmount = amount + upgradeInstance.ownedAmount;
         if(resultAmount > upgradeInstance.upgrade.maxLevel || resultAmount < 0) {
             Debug.LogWarning($"Attempted to transact {amount} which would exceed {upgradeInstance.name} max level of {upgradeInstance.upgrade.maxLevel} or be below 0");
             return;
         }
 
-        if(upgradeInstance.upgrade.costCurrency) {
+        if(processCost) {
+            if(!upgradeInstance.upgrade.costCurrency) {
+                Debug.LogWarning($"{upgradeInstance.upgrade.name} has no cost currency");
+                return;
+            }
+
             BigInteger totalCost = upgradeInstance.GetTotalQuantityCost(amount);
 
-            if(!TryGetOrCreateCurrencyInstance(upgradeInstance.upgrade.costCurrency.name, out var costCurrencyInstance)) {
+            if(!TryGetOrCreateAssetInstance(upgradeInstance.upgrade.costCurrency.name, out var costCurrencyInstance)) {
                 Debug.Log($"{upgradeInstance.name} cost currency not found");
                 return;
             }
@@ -174,33 +172,13 @@ public class IncrementalManager : Singleton<IncrementalManager> {
             }
             costCurrencyInstance.ownedAmount -= totalCost;
         }
+
         upgradeInstance.ownedAmount += amount;
         onUpgradeChanged?.Invoke(upgradeInstance);
         onTriggerRefresh?.Invoke();
     }
 
-    public void TransactAmount(CurrencyInstance currencyInstance, long amount) {
-        currencyInstance.ownedAmount += amount;
-        onCurrencyChanged?.Invoke(currencyInstance);
-        onTriggerRefresh?.Invoke();
-    }
-
-    // Get or create data instances for currency, assets, upgrades; call init if create
-
-    public bool TryGetOrCreateCurrencyInstance(string name, out CurrencyInstance currencyInstance) {
-        if(!currencyInstanceDict.TryGetValue(name, out currencyInstance)) {
-            var currency = GetCurrency(name);
-            if(currency == null) {
-                Debug.LogWarning($"{name} currency not found");
-                return false;
-            }
-            currencyInstance = new CurrencyInstance(currency);
-            currencyInstance.ownedAmount = (BigInteger)currency.startAmount;
-            currencyInstanceDict.Add(name, currencyInstance);
-            onInitOrLoadCurrencyInstance?.Invoke(currencyInstance);
-        }
-        return true;
-    }
+    // Get or create data instances for assets, upgrades; call init if create
 
     public bool TryGetOrCreateAssetInstance(string name, out AssetInstance assetInstance) {
         if(!assetInstanceDict.TryGetValue(name, out assetInstance)) {
@@ -233,16 +211,8 @@ public class IncrementalManager : Singleton<IncrementalManager> {
     
     // accessors
 
-    public IEnumerator<KeyValuePair<string, CurrencyInstance>> GetCurrencyInstances() {
-        return currencyInstanceDict.GetEnumerator();
-    }
-
     public IEnumerator<KeyValuePair<string, AssetInstance>> GetAssetInstances() {
         return assetInstanceDict.GetEnumerator();
-    }
-
-    public Currency GetCurrency(string currencyName) {
-        return currencies != null ? currencies.Find(x=>x.name == currencyName) : null;
     }
 
     public Asset GetAsset(string assetName) {
@@ -254,13 +224,6 @@ public class IncrementalManager : Singleton<IncrementalManager> {
     }
 
     // TODO: change to another asset management?
-
-    public CurrencyInstance AddCurrency(Currency currency) {
-        if(currencies == null) currencies = new List<Currency>();
-        currencies.Add(currency);
-        TryGetOrCreateCurrencyInstance(currency.name, out var c);
-        return c;
-    }
 
     public AssetInstance AddAsset(Asset asset) {
         if(assets == null) assets = new List<Asset>();
@@ -280,11 +243,10 @@ public class IncrementalManager : Singleton<IncrementalManager> {
             return null;
         }
         
-        if(!TryGetOrCreateAssetInstance(clickAsset.name, out clickAssetInstance) 
-        && clickAssetInstance == null) {
+        if(!TryGetOrCreateAssetInstance(clickAsset.name, out clickAssetInstance)) {
             clickAssetInstance = new AssetInstance(clickAsset);
         }
-        if(!TryGetOrCreateCurrencyInstance(clickAsset.outputCurrency.name, out clickOutputCurrencyInstance)) {
+        if(!TryGetOrCreateAssetInstance(clickAsset.outputCurrency.name, out clickOutputCurrencyInstance)) {
             Debug.LogWarning($"{clickAsset.ToString()} output currency not found");
         }
         return clickAssetInstance;
@@ -308,17 +270,13 @@ public class IncrementalManager : Singleton<IncrementalManager> {
         clickAssetInstance = null;
         clickOutputCurrencyInstance = null;
         onAssetChanged = null;
-        onCurrencyChanged = null;
         onUpgradeChanged = null;
         onInitOrLoadAssetInstance = null;
-        onInitOrLoadCurrencyInstance = null;
         onInitOrLoadUpgradeInstance = null;
         onTick = null;
         onClick = null;
-        currencies?.Clear();
         assets?.Clear();
         upgrades?.Clear();
-        currencyInstanceDict.Clear();
         assetInstanceDict.Clear();
         upgradeInstanceDict.Clear();
     }
@@ -329,7 +287,6 @@ public class IncrementalManager : Singleton<IncrementalManager> {
         if(data == null) data = new IncrementalSaveData();
         data.saveTime = DateTime.Now.ToBinary();
 
-        data.currencyInstances = currencyInstanceDict;
         data.assetInstances = assetInstanceDict;
         data.upgradeInstances = upgradeInstanceDict;
     }
@@ -339,7 +296,6 @@ public class IncrementalManager : Singleton<IncrementalManager> {
         savedTime = DateTime.FromBinary(data.saveTime);
         elapsedTimeSinceLastSave = DateTime.Now.Subtract(savedTime);
 
-        this.currencyInstanceDict = data.currencyInstances;
         this.assetInstanceDict = data.assetInstances;
         this.upgradeInstanceDict = data.upgradeInstances;
     }
