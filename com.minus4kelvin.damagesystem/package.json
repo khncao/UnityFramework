@@ -1,0 +1,14 @@
+{
+    "name": "com.minus4kelvin.damagesystem",
+    "version": "0.1.0",
+    "displayName": "m4k.DamageSystem",
+    "description": "Damage system",
+    "unity": "2020.3",
+    "dependencies": {
+      "com.minus4kelvin.core": "0.8.0"
+   },
+   "keywords": [
+      "damage",
+      "combat"
+    ]
+}
