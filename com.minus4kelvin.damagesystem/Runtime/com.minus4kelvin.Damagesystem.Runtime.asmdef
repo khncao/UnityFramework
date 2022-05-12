@@ -1,0 +1,16 @@
+{
+    "name": "com.minus4kelvin.Damagesystem.Runtime",
+    "rootNamespace": "",
+    "references": [
+        "com.minus4kelvin.Core.Runtime"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
