@@ -13,6 +13,8 @@ public class IncrementalSaveData {
 }
 
 public class IncrementalManager : Singleton<IncrementalManager> {
+    public static string defaultNumberFormat = "#,0.#";
+    public string _defaultNumberFormat = "#,0.#"; // updates static in onvalidate
     // asset lookup
     [SerializeField, InspectInline]
     List<Upgrade> upgrades;
@@ -24,6 +26,12 @@ public class IncrementalManager : Singleton<IncrementalManager> {
 
     public float globalCurrencyGainMultiplier = 1f;
     public bool processElapsedTimeSinceLastSave;
+    
+    // public int undoSteps = 10;
+    [Header("Autosave; invokes onAutoSave event")]
+    public int ticksPerAutoSave = 2;
+    [Tooltip("Triggers on successful TransactAmount calls")]
+    public bool autoSaveOnTransaction;
 
     // cache
     [NonSerialized]
@@ -31,7 +39,7 @@ public class IncrementalManager : Singleton<IncrementalManager> {
     [NonSerialized]
     AssetInstance clickOutputCurrencyInstance;
 
-    public event Action onClick, onTick, onTriggerRefresh;
+    public event Action onClick, onTick, onTriggerRefresh, onAutoSave;
     public event Action<AssetInstance> onAssetChanged;
     public event Action<UpgradeInstance> onUpgradeChanged;
     public event Action<AssetInstance> onInitOrLoadAssetInstance;
@@ -40,13 +48,22 @@ public class IncrementalManager : Singleton<IncrementalManager> {
     SerializableDictionary<string, AssetInstance> assetInstanceDict = new SerializableDictionary<string, AssetInstance>();
     SerializableDictionary<string, UpgradeInstance> upgradeInstanceDict = new SerializableDictionary<string, UpgradeInstance>();
 
+    // Queue<IncrementalSaveData> snapshotQueue = new Queue<IncrementalSaveData>();
+    // IncrementalSaveData currentSnapshot;
+
     DateTime savedTime;
     TimeSpan elapsedTimeSinceLastSave;
     bool loadedFromSave;
+    int ticksUntilAutosave;
+
+    private void OnValidate() {
+        defaultNumberFormat = _defaultNumberFormat;
+    }
 
     private IEnumerator Start() {
         GameTime.I.onTick -= Tick;
         GameTime.I.onTick += Tick;
+        ticksUntilAutosave = ticksPerAutoSave;
         UIBase?.Initialize(this); // explicitly init UI for order
 
         if(assets == null) assets = new List<Asset>();
@@ -89,6 +106,11 @@ public class IncrementalManager : Singleton<IncrementalManager> {
     public void Tick(long tick) {
         ProcessAssetOutputs(globalCurrencyGainMultiplier);
         onTick?.Invoke();
+        ticksUntilAutosave--;
+        if(ticksUntilAutosave == 0) {
+            ticksUntilAutosave = ticksPerAutoSave;
+            onAutoSave?.Invoke();
+        }
     }
 
     public void Click() {
@@ -145,6 +167,7 @@ public class IncrementalManager : Singleton<IncrementalManager> {
         assetInstance.ownedAmount += amount;
         onAssetChanged?.Invoke(assetInstance);
         onTriggerRefresh?.Invoke();
+        onAutoSave?.Invoke();
     }
 
     public void TransactAmount(UpgradeInstance upgradeInstance, long amount, bool processCost = true) {
@@ -176,6 +199,7 @@ public class IncrementalManager : Singleton<IncrementalManager> {
         upgradeInstance.ownedAmount += amount;
         onUpgradeChanged?.Invoke(upgradeInstance);
         onTriggerRefresh?.Invoke();
+        onAutoSave?.Invoke();
     }
 
     // Get or create data instances for assets, upgrades; call init if create
@@ -282,6 +306,11 @@ public class IncrementalManager : Singleton<IncrementalManager> {
     }
 
     // serialization
+
+    // save collection of deep copy snapshots for undo states
+    // void SaveSnapshot() {
+
+    // }
 
     public void Serialize(ref IncrementalSaveData data) {
         if(data == null) data = new IncrementalSaveData();

@@ -41,9 +41,9 @@ public class UpgradeInstance {
 
         s.AppendLine(upgrade.displayName);
         s.AppendLine(upgrade.description + '\n');
-        s.AppendLine($"{ownedAmount} / {upgrade.maxLevel}");
+        s.AppendLine($"{ownedAmount.ToString(IncrementalManager.defaultNumberFormat)} / {upgrade.maxLevel.ToString(IncrementalManager.defaultNumberFormat)}");
         if(upgrade.costCurrency)
-            s.AppendLine($"{upgrade.costAmount.Value} {upgrade.costCurrency.displayName} cost");
+            s.AppendLine($"{upgrade.costAmount.Value.ToString(IncrementalManager.defaultNumberFormat)} {upgrade.costCurrency.displayName} cost");
 
         return s.ToString();
     }

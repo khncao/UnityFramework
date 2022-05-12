@@ -61,11 +61,11 @@ public class AssetInstance : ISerializationCallbackReceiver {
 
         s.AppendLine(asset.displayName);
         s.AppendLine(asset.description + '\n');
-        s.AppendLine($"{ownedAmount} owned");
+        s.AppendLine($"{ownedAmount.ToString(IncrementalManager.defaultNumberFormat)} owned");
         if(asset.costCurrency)
-            s.AppendLine($"{asset.costAmount.Value} {asset.costCurrency.displayName} cost");
+            s.AppendLine($"{asset.costAmount.Value.ToString(IncrementalManager.defaultNumberFormat)} {asset.costCurrency.displayName} cost");
         if(asset.outputCurrency)
-            s.AppendLine($"{asset.outputAmount.Value} {asset.outputCurrency.displayName} per tick output");
+            s.AppendLine($"{asset.outputAmount.Value.ToString(IncrementalManager.defaultNumberFormat)} {asset.outputCurrency.displayName} per tick output");
 
         return s.ToString();
     }

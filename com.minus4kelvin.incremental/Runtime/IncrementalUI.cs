@@ -54,16 +54,12 @@ public abstract class IncrementalUIBase : MonoBehaviour {
 /// Example implementation of IncrementalUIBase
 /// </summary>
 public class IncrementalUI : IncrementalUIBase {
-    public Transform currencyUIParent;
     public Transform assetUIParent;
-    public GameObject currencyUIPrefab;
     public GameObject assetUIPrefab;
 
     public Transform upgradeUIParent;
     public GameObject upgradeUIPrefab;
 
-    public TMP_Text currenciesText;
-    public TMP_Text assetsText;
     public TMP_Text selectionDescriptionText;
 
     Dictionary<AssetInstance, AssetUI> assetInstantUIDict = new Dictionary<AssetInstance, AssetUI>();
@@ -80,7 +76,7 @@ public class IncrementalUI : IncrementalUIBase {
 
     public override void OnAssetChanged(AssetInstance assetInstance) {
         if(assetInstance == null) {
-            UpdateAllAssetText();
+            Debug.LogWarning("Null assetInstance changed");
         }
         else if(assetInstantUIDict.TryGetValue(assetInstance, out var assetUI)) {
             assetUI.UpdateUI();
@@ -140,19 +136,5 @@ public class IncrementalUI : IncrementalUIBase {
             if(a.Value.asset.hideInUI) continue;
             OnAssetChanged(a.Value);
         }
-    }
-
-    void UpdateAllAssetText() {
-        if(!assetsText) return;
-        System.Text.StringBuilder s = new System.Text.StringBuilder("Assets\n");
-        
-        var assets = incrementalManager.GetAssetInstances();
-        while(assets.MoveNext()) {
-            var a = assets.Current;
-            if(a.Value.asset.hideInUI) continue;
-            s.Append($"{a.Value.ToString()} {a.Value.ownedAmount}\n");
-        }
-
-        assetsText.text = s.ToString();
     }
 }}
