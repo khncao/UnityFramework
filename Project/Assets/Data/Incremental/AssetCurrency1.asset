@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   displayName: Currency1
   description: 
-  startAmount: 5
+  startAmount: 10
   hideInUI: 0
   costCurrency: {fileID: 0}
   costAmount:

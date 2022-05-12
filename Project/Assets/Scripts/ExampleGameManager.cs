@@ -65,6 +65,9 @@ public class GameSaveData : GameDataBase {
 [DefaultExecutionOrder(100)]
 public class ExampleGameManager : MonoBehaviour
 {
+    public KeyCode quickSaveKey = KeyCode.F5;
+    public KeyCode quickLoadKey = KeyCode.F6;
+    public KeyCode loadAutoKey = KeyCode.F8;
     SaveLoadData<GameSaveData> gameSaveData;
     int saveVersion = 1;
 
@@ -73,14 +76,22 @@ public class ExampleGameManager : MonoBehaviour
         SaveLoadManager.Init(gameSaveData);
     }
 
+    void Start() {
+        IncrementalManager.I.onAutoSave += () => { SaveLoadManager.saveLoadable.Save(SaveLoadManager.AutoSaveId); };
+    }
+
     private void Update() {
-        if(Input.GetKeyDown(KeyCode.F5)) {
+        if(Input.GetKeyDown(quickSaveKey)) {
             Debug.Log("Quicksave");
             SaveLoadManager.saveLoadable.QuickSave();
         }
-        if(Input.GetKeyDown(KeyCode.F6)) {
+        if(Input.GetKeyDown(quickLoadKey)) {
             Debug.Log("Quickload");
             SaveLoadManager.saveLoadable.QuickLoad();
+        }
+        if(Input.GetKeyDown(loadAutoKey)) {
+            Debug.Log("Load autosave");
+            SaveLoadManager.saveLoadable.Load(SaveLoadManager.AutoSaveId);
         }
     }
 }

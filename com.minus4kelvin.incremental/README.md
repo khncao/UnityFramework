@@ -12,6 +12,8 @@ Goals:
 
 Todo:
 - Upgrades still WIP. Implement upgrades for asset cost/output, global modifiers, arbitrary ModdableValues
+- Undo capability with snapshots
+- Number format options
 - Upgradabable abilities
 - Possibly simplify implementation
 - Implement in varying situations to expand general usability and extendability

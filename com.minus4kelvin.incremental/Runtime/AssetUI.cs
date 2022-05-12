@@ -15,23 +15,27 @@ public class AssetUI : Selectable {
 
     [System.NonSerialized]
     IncrementalUIBase ui;
-    // EventTrigger eventTrigger;
 
     public void AssignAssetInstance(AssetInstance assetInstance, IncrementalUIBase ui) {
         this.ui = ui;
         currentAssetInstance = assetInstance;
         UpdateUI();
 
-        // if(TryGetComponent<EventTrigger>(out eventTrigger)) {
+        // if(TryGetComponent<EventTrigger>(out var eventTrigger)) {
         //     var triggerEntry = new EventTrigger.Entry();
         //     triggerEntry.eventID = EventTriggerType.PointerClick;
         //     triggerEntry.callback.AddListener((eventData) => {
         //         IncrementalManager.I.TransactAmount(assetInstance, 1);
         //     });
-            
         //     eventTrigger.triggers.Add(triggerEntry);
         // }
         if(!inputField) return;
+        if(!assetInstance.asset.costCurrency) {
+            inputField.gameObject.SetActive(false);
+            return;
+        }
+        else
+            inputField.gameObject.SetActive(true);
         inputField.onSubmit.AddListener((input) => {
             if(int.TryParse(input, out int amount))
                 IncrementalManager.I.TransactAmount(assetInstance, amount);
@@ -40,9 +44,9 @@ public class AssetUI : Selectable {
 
     public void UpdateUI() {
         if(descriptionLabel)
-            descriptionLabel.text = $"{currentAssetInstance.ToString()}({currentAssetInstance.asset.costAmount.Value})";
+            descriptionLabel.text = $"{currentAssetInstance.ToString()}({currentAssetInstance.asset.costAmount.Value.ToString(IncrementalManager.defaultNumberFormat)})";
         if(amountOwnedLabel)
-            amountOwnedLabel.text = $"{currentAssetInstance.ownedAmount.ToString()}";
+            amountOwnedLabel.text = $"{currentAssetInstance.ownedAmount.ToString(IncrementalManager.defaultNumberFormat)}";
     }
 
     public override void OnSelect(BaseEventData eventData) {
