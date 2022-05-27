@@ -15,8 +15,7 @@ public class ModdableValueTests
         dmgStat = new ModdableValue(0f, "dmg");
         strStat = new ModdableValue(100f, "str");
         dexStat = new ModdableValue(50f, "dex");
-        percentMultMod = new ValueMod(0f, null, 0.1f);
-        percentAddMod = new ValueMod(0f, null, 0.2f);
+        percentMultMod = new ValueMod(0f, null, 0, 1.1f);
     }
 
     [Test]
@@ -50,13 +49,6 @@ public class ModdableValueTests
     }
 
     [Test]
-    public void PercentAddModifier() {
-        dmgStat.SetBaseValue(100f);
-        dmgStat.AddModifier(percentAddMod);
-        Assert.AreEqual(dmgStat.Value, 120f);
-    }
-
-    [Test]
     public void ChangedModdableDependency() {
         dmgStat.AddModdableModifier(strStat);
         strStat.AddModdableModifier(dexStat);
@@ -77,6 +69,25 @@ public class ModdableValueTests
         Assert.AreEqual(dmgStat.Value, 0f);
     }
 
+    [Test]
+    public void TestOrder() {
+        dmgStat.AddModdableModifier(strStat, null, 0);
+        Assert.AreEqual(100f, dmgStat.Value);
+        dmgStat.AddModdableModifier(dexStat, null, 0);
+        Assert.AreEqual(150f, dmgStat.Value);
+
+        percentMultMod = new ValueMod(0f, null, 1, 1.1f);
+        dmgStat.AddModifier(percentMultMod);
+        Assert.AreEqual(165f, 150f * 1.1f, "Math");
+        Assert.AreEqual(165f, dmgStat.Value, "Dmg after mult");
+
+        dmgStat.RemoveModdableModifier(dexStat);
+        Assert.AreEqual(110f, dmgStat.Value);
+
+        dmgStat.AddModdableModifier(dexStat, null, 2);
+        Assert.AreEqual(160f, dmgStat.Value);
+    }
+
     [UnityTest]
     public IEnumerator DestroyedModdableValueProperDisposal() {
         dmgStat = new ModdableValue(0f, "dmg");
@@ -86,9 +97,11 @@ public class ModdableValueTests
 
         var go = new GameObject();
         var moddableGroup = go.AddComponent<ModdableValueGroup>();
-        moddableGroup.moddableValues = new List<ModdableValue>();
+        moddableGroup.Initialize();
+        moddableGroup.AddModdableValue(strStat);
+        moddableGroup.TryGetModdableValue(strStat.id, out var testGetModdable);
+        Assert.AreEqual(100f, testGetModdable.Value);
 
-        moddableGroup.moddableValues.Add(strStat);
         GameObject.Destroy(go);
 
         yield return null;

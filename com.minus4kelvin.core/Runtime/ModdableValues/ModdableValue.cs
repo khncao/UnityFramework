@@ -49,6 +49,8 @@ public class ModdableValue {
     public virtual void AddModifier(ValueMod mod) {
         isDirty = true;
         modifiers.Add(mod);
+        modifiers.Sort((x, y) => x.order.CompareTo(y.order));
+
         onChange?.Invoke(Value, this);
     }
 
@@ -62,7 +64,12 @@ public class ModdableValue {
     }
 
 
-    public virtual void AddModdableModifier(ModdableValue moddable, object source = null, float multiplier = 1f, bool multiplyAfterAddedValue = true) {
+    public virtual void AddModdableModifier(ModdableValue moddable, 
+                                            object source = null, 
+                                            int order = 0, 
+                                            float multiplier = 1f, 
+                                            bool multiplyAfterAddedValue = true) 
+    {
         if(moddable.ContainsModdableModifier(this)) {
             Debug.LogError($"{moddable.ToString()} depends on this moddable {ToString()}; circle dependency");
             return;
@@ -75,7 +82,7 @@ public class ModdableValue {
         moddable.dependantModdables.Add(this);
         if(source == null) 
             source = moddable;
-        var mod = new ValueMod(moddable, source, multiplier, multiplyAfterAddedValue);
+        var mod = new ValueMod(moddable, source, order, multiplier, multiplyAfterAddedValue);
         AddModifier(mod);
     }
 
@@ -136,7 +143,6 @@ public class ModdableValue {
 
     public float CalculateFinalValue() {
         float finalValue = baseValue;
-    
         for(int i = 0; i < modifiers.Count; ++i) {
             finalValue = modifiers[i].ProcessValue(finalValue);
         }
