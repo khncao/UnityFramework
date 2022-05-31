@@ -50,11 +50,11 @@ public class CraftUI : MonoBehaviour
         craftProgressTxt.text = s;
     }
 
-    ItemSlot fromSlot, toSlot;
-    public void InitiateItemTransfer(ItemSlot itemSlot) {
+    ItemSlotUI fromSlot, toSlot;
+    public void InitiateItemTransfer(ItemSlotUI itemSlot) {
         InitiateItemTransfer(itemSlot, null);
     }
-    public void InitiateItemTransfer(ItemSlot from, ItemSlot to) {
+    public void InitiateItemTransfer(ItemSlotUI from, ItemSlotUI to) {
         fromSlot = from;
         toSlot = to;
 

@@ -11,7 +11,7 @@ public class ItemRecipe : Item
     public SerializableDictionary<Item, int> output;
     public int craftTime;
 
-    public override void ContextTransfer(ItemSlot slot) {
+    public override void ContextTransfer(ItemSlotUI slot) {
         if(CraftManager.I.inputSlotManager.inventory.totalItemsList.Count > 0) {
             Feedback.I.SendLine("Items still in craft window");
             return;

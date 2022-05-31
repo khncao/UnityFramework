@@ -267,7 +267,7 @@ public class CraftManager : Singleton<CraftManager>
     /// <param name="fromSlot"></param>
     /// <param name="toSlot"></param>
     /// <param name="amount"></param>
-    public void CompleteTranfer(int amount, ItemSlot fromSlot, ItemSlot toSlot) {
+    public void CompleteTranfer(int amount, ItemSlotUI fromSlot, ItemSlotUI toSlot) {
         if(!inCraft) return;
 
         if(inputSlotManager.inventory.totalItemsList.Count > 0) 

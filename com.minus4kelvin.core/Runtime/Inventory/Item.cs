@@ -115,7 +115,7 @@ public class Item : ScriptableObject
     /// </summary>
     /// <param name="slot"></param>
     /// <returns></returns>
-    public virtual bool Primary(ItemSlot slot) {
+    public virtual bool Primary(ItemSlotUI slot) {
         return true;
     }
 
@@ -124,7 +124,7 @@ public class Item : ScriptableObject
     /// </summary>
     /// <param name="slot"></param>
     /// <returns></returns>
-    public virtual bool Secondary(ItemSlot slot) {
+    public virtual bool Secondary(ItemSlotUI slot) {
         return true;
     }
 
@@ -133,7 +133,7 @@ public class Item : ScriptableObject
     /// </summary>
     /// <param name="slot"></param>
     /// <returns></returns>
-    public virtual bool Tertiary(ItemSlot slot) {
+    public virtual bool Tertiary(ItemSlotUI slot) {
         return true;
     }
 
@@ -141,7 +141,7 @@ public class Item : ScriptableObject
         InventoryManager.I.mainInventory.AddItemAmount(this, amount, notify);
     }
 
-    public virtual void ContextTransfer(ItemSlot slot) {
+    public virtual void ContextTransfer(ItemSlotUI slot) {
         InventoryManager.I.UI.InitiateItemTransfer(slot);
     }
 

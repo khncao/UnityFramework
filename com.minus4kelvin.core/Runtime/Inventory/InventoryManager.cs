@@ -118,7 +118,7 @@ public class InventoryManager : Singleton<InventoryManager>//, IStateSerializabl
         onExitTransactions?.Invoke();
     }
 
-    public void CompleteTransaction(int amount, ItemSlot fromSlot, ItemSlot toSlot, bool monetary = false) {
+    public void CompleteTransaction(int amount, ItemSlotUI fromSlot, ItemSlotUI toSlot, bool monetary = false) {
         ItemSlotHandler from = fromSlot.slotManager;
         ItemSlotHandler to;
 

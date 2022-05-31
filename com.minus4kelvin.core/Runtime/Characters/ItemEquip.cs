@@ -7,7 +7,7 @@ using m4k.Items;
 public class ItemEquip : Item {
     public static ItemTag[] equipTags = { ItemTag.Head, ItemTag.Body, ItemTag.Hairstyle, ItemTag.Outfit, ItemTag.Hat, ItemTag.Holdable };
 
-    public override bool Primary(ItemSlot slot)
+    public override bool Primary(ItemSlotUI slot)
     {
         return base.Primary(slot);
     }

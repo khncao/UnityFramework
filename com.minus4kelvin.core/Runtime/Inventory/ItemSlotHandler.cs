@@ -19,13 +19,13 @@ public class ItemSlotHandler : MonoBehaviour, IDropHandler
     [Header("If true, will skip populating item if not interactable")]
     public bool hideLockedSlots = false;
     public bool canDrag = true;
-	public ItemSlot[] slots;
+	public ItemSlotUI[] slots;
     
     public InventoryManager inventoryManager;
 
     public bool interactableOverride { get; set; } = false;
     public bool isInteractableOverride { get; set; }
-    public ItemSlot selected { get; set; }
+    public ItemSlotUI selected { get; set; }
 
     const int ExpandSlotsBuffer = 4;
     bool initialized;
@@ -37,7 +37,7 @@ public class ItemSlotHandler : MonoBehaviour, IDropHandler
             return;
 
         if(slots.Length < 1)
-		    slots = slotsParent.GetComponentsInChildren<ItemSlot>(false);
+		    slots = slotsParent.GetComponentsInChildren<ItemSlotUI>(false);
 		for(int i = 0; i < slots.Length; i++) {
 			slots[i].slotManager = this;
             slots[i].slotIndex = i;
@@ -157,13 +157,13 @@ public class ItemSlotHandler : MonoBehaviour, IDropHandler
         if(!slotPrefab) return;
 
         int newSize = slots.Length + amount + ExpandSlotsBuffer;
-        var newSlots = new ItemSlot[newSize];
+        var newSlots = new ItemSlotUI[newSize];
         for(int i = 0; i < slots.Length; ++i) {
             newSlots[i] = slots[i];
         }
         for(int i = slots.Length; i < newSize; ++i) {
             var obj = Instantiate(slotPrefab, slotsParent.transform, false);
-            var slot = obj.GetComponent<ItemSlot>();
+            var slot = obj.GetComponent<ItemSlotUI>();
 			slot.slotManager = this;
             slot.slotIndex = i;
             slot.UnassignItem();

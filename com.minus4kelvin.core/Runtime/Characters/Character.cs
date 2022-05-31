@@ -46,7 +46,7 @@ public class Character : Item
     public List<CharExpression> expressions;
     public int initialImpression;
 
-    public override bool Primary(ItemSlot slot)
+    public override bool Primary(ItemSlotUI slot)
     {
         CharacterManager.I.SetFocused(this);
         return true;

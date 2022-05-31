@@ -35,9 +35,9 @@ public class InventoryUI : MonoBehaviour
     [HideInInspector]
     public Image dragImg;
     [HideInInspector]
-    public ItemSlot dragSlot;
+    public ItemSlotUI dragSlot;
     [HideInInspector]
-    public ItemSlot hoverSlot;
+    public ItemSlotUI hoverSlot;
 
     int timesToPlay;
     Coroutine addCurrencyAnim;
@@ -133,8 +133,8 @@ public class InventoryUI : MonoBehaviour
     }
 
 
-    ItemSlot contextSlot;
-    public void UpdateHoverWindow(ItemSlot slot) {
+    ItemSlotUI contextSlot;
+    public void UpdateHoverWindow(ItemSlotUI slot) {
         hoverSlot = slot;
         itemContext.transform.position = hoverSlot.transform.position;
         hoverNameTxt.text = hoverSlot.item.DisplayName;
@@ -179,11 +179,11 @@ public class InventoryUI : MonoBehaviour
     public void ContextDestroy() {}
 
 
-    ItemSlot fromSlot, toSlot;
-    public void InitiateItemTransfer(ItemSlot itemSlot) {
+    ItemSlotUI fromSlot, toSlot;
+    public void InitiateItemTransfer(ItemSlotUI itemSlot) {
         InitiateItemTransfer(itemSlot, null);
     }
-    public void InitiateItemTransfer(ItemSlot from, ItemSlot to) {
+    public void InitiateItemTransfer(ItemSlotUI from, ItemSlotUI to) {
         fromSlot = from;
         toSlot = to;
 

@@ -7,7 +7,7 @@ namespace m4k.BuildSystem {
 [CreateAssetMenu(fileName = "ItemBuildable", menuName = "Data/Items/ItemBuildable")]
 public class ItemBuildable : Item {
     // [Header("Buildable")]
-    public override bool Primary(ItemSlot slot)
+    public override bool Primary(ItemSlotUI slot)
     {
         BuildingSystem.I.SetBuildObject(this);
         return true;
