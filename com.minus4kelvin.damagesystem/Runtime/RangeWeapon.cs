@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace m4k.Damage {
+// TODO: extendable base projectile shooter class
 public class RangeWeapon : MonoBehaviour
 {
     public Vector3 muzzleOffset;
@@ -12,7 +13,8 @@ public class RangeWeapon : MonoBehaviour
     public RandomAudioPlayer attackAudio;
     public int damage;
     public float force;
-    public GameObject Owner { get; private set; }
+    public int preloadProjectileCount = 20;
+    public Transform owner { get; set; }
 
     public Projectile loadedProjectile {
         get { return m_LoadedProjectile; }
@@ -20,14 +22,28 @@ public class RangeWeapon : MonoBehaviour
 
     protected Projectile m_LoadedProjectile = null;
     protected MonoBehaviourPooler<Projectile> m_ProjectilePool;
+    protected List<Projectile> activeProjectiles = new List<Projectile>();
 
     private void Start()
     {
-        m_ProjectilePool = new MonoBehaviourPooler<Projectile>(20, projectile);
+        m_ProjectilePool = new MonoBehaviourPooler<Projectile>(preloadProjectileCount, projectile);
     }
 
-    public void SetOwner(GameObject o) {
-        Owner = o;
+    private void FixedUpdate() {
+        // free projectile if flagged or past projectile lifetime
+        for(int i = activeProjectiles.Count; i >= 0; --i) {
+            if(activeProjectiles[i] == null) 
+                continue;
+
+            activeProjectiles[i].OnUpdate();
+
+            if(activeProjectiles[i].freeFlag
+                || (activeProjectiles[i].projectedDeathTime > 0f && activeProjectiles[i].projectedDeathTime > Time.time)) 
+            {
+                activeProjectiles[i].Free();
+                activeProjectiles.RemoveAt(i);
+            }
+        }
     }
 
     public void Attack(Vector3 target)
@@ -51,8 +67,9 @@ public class RangeWeapon : MonoBehaviour
         if (m_LoadedProjectile == null) LoadProjectile();
 
         m_LoadedProjectile.transform.SetParent(null, true);
-        m_LoadedProjectile.Shot(target, this);
-        m_LoadedProjectile = null; //once shot, we don't own the projectile anymore, it does it's own life.
+        m_LoadedProjectile.OnFire(target, owner);
+        activeProjectiles.Add(m_LoadedProjectile);
+        m_LoadedProjectile = null; 
     }
 
 #if UNITY_EDITOR

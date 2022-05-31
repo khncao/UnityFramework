@@ -6,7 +6,7 @@ using UnityEngine;
 using System;
 
 namespace m4k.Damage {
-public class MeleeWeapon : MonoBehaviour, IDamager
+public class MeleeWeapon : MonoBehaviour
 {
     [System.Serializable]
     public class AttackPoint
@@ -21,7 +21,7 @@ public class MeleeWeapon : MonoBehaviour, IDamager
 #endif
     }
 
-    public int damage = 1;
+    public int damage { get; set; } = 1;
     public float force = 10f;
     public ParticleSystem hitParticlePrefab;
     public LayerMask targetLayers;
@@ -31,8 +31,7 @@ public class MeleeWeapon : MonoBehaviour, IDamager
     public RandomAudioPlayer hitAudio;
     public RandomAudioPlayer attackAudio;
 
-    public GameObject Self { get { return gameObject; }}
-    public GameObject Owner { get; private set; }
+    public Transform owner { get; set; }
 
     protected Vector3[] m_PreviousPos = null;
     protected Vector3 m_Direction;
@@ -43,8 +42,9 @@ public class MeleeWeapon : MonoBehaviour, IDamager
     protected ParticleSystem[] m_ParticlesPool = new ParticleSystem[PARTICLE_COUNT];
     protected int m_CurrentParticle = 0;
 
-    protected static RaycastHit[] s_RaycastHitCache = new RaycastHit[32];
-    protected static Collider[] s_ColliderCache = new Collider[32];
+    protected HashSet<GameObject> m_SwingHitObjects = new HashSet<GameObject>();
+
+    protected RaycastHit[] m_RaycastHitCache = new RaycastHit[32];
 
     private void Awake() {
         if (hitParticlePrefab != null)
@@ -57,16 +57,12 @@ public class MeleeWeapon : MonoBehaviour, IDamager
         }
     }
 
-    //whoever own the weapon is responsible for calling that. Allow to avoid "self harm"
-    public void SetOwner(GameObject owner) {
-        Owner = owner;
-    }
-
     public void BeginAttack(bool thowingAttack)
     {
         if (attackAudio != null)
             attackAudio.PlayRandomClip();
 
+        m_SwingHitObjects.Clear();
         m_InAttack = true;
         m_PreviousPos = new Vector3[attackPoints.Length];
 
@@ -107,13 +103,15 @@ public class MeleeWeapon : MonoBehaviour, IDamager
                 if (attackVector.sqrMagnitude < 0.0001f) {
                     attackVector = Vector3.forward * 0.0001f;
                 }
+                m_Direction = attackVector;
+                
                 Ray r = new Ray(worldPos, attackVector.normalized);
 
-                int contacts = Physics.SphereCastNonAlloc(r, pts.radius, s_RaycastHitCache, attackVector.sqrMagnitude, ~0, QueryTriggerInteraction.Ignore);
+                int contacts = Physics.SphereCastNonAlloc(r, pts.radius, m_RaycastHitCache, attackVector.sqrMagnitude, targetLayers, QueryTriggerInteraction.Ignore);
 
                 for (int k = 0; k < contacts; ++k) {
-                    if (s_RaycastHitCache[k].collider != null)
-                        CheckDamage(s_RaycastHitCache[k], pts);
+                    if (m_RaycastHitCache[k].collider != null)
+                        CheckDamage(m_RaycastHitCache[k], pts);
                 }
 
                 m_PreviousPos[i] = worldPos;
@@ -129,51 +127,44 @@ public class MeleeWeapon : MonoBehaviour, IDamager
     {
         Collider col = hit.collider;
 
-        if((targetLayers.value & (1 << col.gameObject.layer)) == 0) {
-            return false;
+        // if((targetLayers.value & (1 << col.gameObject.layer)) == 0) {
+        //     return false;
+        // }
+        // avoid hitting same object twice in one swing
+        if(m_SwingHitObjects.Contains(col.gameObject)) {
+            return true;
         }
+        m_SwingHitObjects.Add(col.gameObject);
 
-        Damageable d = col.GetComponent<Damageable>();
-        if(d && d.gameObject == Owner) {
+        // avoid hitting owner
+        if(col.gameObject == owner) {
             return true;
         }
 
-        if (hitAudio != null) {
-            var renderer = col.GetComponent<Renderer>();
-            if (!renderer)
-                renderer = col.GetComponentInChildren<Renderer> ();
-            if (renderer)
-                hitAudio.PlayRandomClip (renderer.sharedMaterial);
+        // play hit effects even if no damageable
+        if(hitAudio != null) {
+            if(!col.TryGetComponent<Renderer>(out var renderer))
+                renderer = col.GetComponentInChildren<Renderer>();
+            if(renderer)
+                hitAudio.PlayRandomClip(renderer.sharedMaterial);
             else
-                hitAudio.PlayRandomClip ();
+                hitAudio.PlayRandomClip();
         }
-        if(!d) {
-            return false;
-        }
-
-        DamageMessage data = new DamageMessage();
-
-        data.amount = damage;
-        data.force = force;
-        data.damager = this;
-        data.hitPoint = hit.point;
-        data.direction = m_Direction.normalized;
-
-        d.ApplyDamage(data);
-
-        if (hitParticlePrefab != null)
-        {
+        if(hitParticlePrefab != null) {
             m_ParticlesPool[m_CurrentParticle].transform.position = pts.attackRoot.transform.position;
             m_ParticlesPool[m_CurrentParticle].time = 0;
             m_ParticlesPool[m_CurrentParticle].Play();
             m_CurrentParticle = (m_CurrentParticle + 1) % PARTICLE_COUNT;
         }
 
+        if(!col.TryGetComponent<IDamageable>(out var damageable)) {
+            return true;
+        }
+
+        damageable.ApplyDamage(-damage);
+        damageable.ApplyForce(force, hit.point, m_Direction.normalized);
+
         return true;
-    }
-
-    public void OnDamageDealt(Damageable damageable) {
-
     }
 
 #if UNITY_EDITOR

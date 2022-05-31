@@ -5,6 +5,7 @@
     "com.minus4kelvin.core": "file:../../com.minus4kelvin.core",
     "com.minus4kelvin.saveload": "file:../../com.minus4kelvin.saveload",
     "com.minus4kelvin.incremental": "file:../../com.minus4kelvin.incremental",
+    "com.minus4kelvin.damagesystem": "file:../../com.minus4kelvin.damagesystem",
     "com.unity.collab-proxy": "1.15.15",
     "com.unity.ide.rider": "3.0.7",
     "com.unity.ide.visualstudio": "2.0.14",
