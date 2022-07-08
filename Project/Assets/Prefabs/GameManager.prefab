@@ -1,0 +1,100 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &6656324296216848543
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6656324296216848541}
+  - component: {fileID: 6656324296216848542}
+  - component: {fileID: 6656324296216848540}
+  - component: {fileID: 6656324296216848531}
+  m_Layer: 0
+  m_Name: GameManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6656324296216848541
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6656324296216848543}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6656324296216848542
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6656324296216848543}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a3dafe4f670f8754aa36601f617ebad3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  quickSaveKey: 286
+  quickLoadKey: 287
+  loadAutoKey: 289
+--- !u!114 &6656324296216848540
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6656324296216848543}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cf42bf9358803e94bbdc82e91356ed6a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mainMenuScene:
+    Scene: {fileID: 102900000, guid: 0e48ca75581e8244a84dde5a6105f7ed, type: 3}
+    SceneName: IncrementalExample
+    sceneIndex: 0
+    sceneEnabled: 1
+  newGameScene:
+    Scene: {fileID: 0}
+    SceneName: 
+    sceneIndex: 0
+    sceneEnabled: 1
+  sceneDependencies: []
+--- !u!114 &6656324296216848531
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6656324296216848543}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e3b1d66cb9f6364badeb65747be013e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  paused: 0
+  ticks: 0
+  day: 0
+  timeOfDaySO: {fileID: 0}
+  timeProfile:
+    profileName: 
+    ticksPerSecond: 1
+    timeMult: 1
+    secondsPerDay: 1440
+    secondsPerHour: 60
+    daysInWeek: 7
+    daysInMonth: 30
+    monthsInYear: 12
+    dayStartTime: 360
+    nightStartTime: 960

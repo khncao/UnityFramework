@@ -77,7 +77,10 @@ public class ExampleGameManager : MonoBehaviour
     }
 
     void Start() {
-        IncrementalManager.I.onAutoSave += () => { SaveLoadManager.saveLoadable.Save(SaveLoadManager.AutoSaveId); };
+        if(IncrementalManager.I)
+            IncrementalManager.I.onAutoSave += () => { 
+                SaveLoadManager.saveLoadable.Save(SaveLoadManager.AutoSaveId); 
+            };
     }
 
     private void Update() {
