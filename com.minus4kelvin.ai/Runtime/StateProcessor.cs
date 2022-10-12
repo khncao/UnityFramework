@@ -10,7 +10,6 @@ namespace m4k.AI {
 /// </summary>
 public class StateProcessor : MonoBehaviour, IStateHandler
 {
-    // TODO: move animation utilities to more abstract/general context
     public static List<StateProcessor> instances { get; } = new List<StateProcessor>();
     public static System.Action<StateProcessor> onAddProcessor, onRemoveProcessor;
 
@@ -19,8 +18,12 @@ public class StateProcessor : MonoBehaviour, IStateHandler
     public INavMovable movable;
     public InventoryComponent inventory;
     public Animator anim;
-    public CharacterControl cc;
     public Collider col;
+    [Tooltip("Visual transform parent for wield instance")]
+    public Transform wieldParent;
+    [Tooltip("Pivot from which wield physics checks pivot/originate")]
+    public Transform wieldPivot;
+    public ScriptableObject defaultWieldIItem;
     public bool conscriptable = true;
     public float detectionCooldown = 1f;
     public float viewAngles = 180f;
@@ -31,13 +34,17 @@ public class StateProcessor : MonoBehaviour, IStateHandler
     public bool isStopped { get; set; }
     public IState currentState { get; private set; }
 
+    public IItemPrefab currentWieldItem { get; private set; }
+    public IToolInteract currentWieldTool { get; private set; }
+    public GameObject currentWieldInstance { get; private set; }
+
     protected float lastAbortTime;
     protected bool abortingTask;
 
     protected StateMachine stateMachine;
 
     protected Queue<IState> eventStateQueue = new Queue<IState>();
-    // protected Dictionary<string, AnimatorStateCallbacks> animatorStateCallbacks = new Dictionary<string, AnimatorStateCallbacks>();
+    protected Dictionary<IItemPrefab, GameObject> itemInstances = new Dictionary<IItemPrefab, GameObject>();
 
     public AnimatorStateInfo[] currAnimStateInfo, prevAnimStateInfo, defaultAnimStateInfo;
 
@@ -64,22 +71,18 @@ public class StateProcessor : MonoBehaviour, IStateHandler
         
         if(!inventory)
             inventory = GetComponentInChildren<InventoryComponent>();
-        if(!inventory)
-            Debug.LogWarning($"No inventory found on {gameObject} processor");
 
         if(!anim) anim = GetComponent<Animator>();
-        // var smbs = anim.GetBehaviours<AnimatorStateCallbacks>();
-        // foreach(var smb in smbs) {
-        //     if(string.IsNullOrEmpty(smb.stateName))
-        //         continue;
-        //     animatorStateCallbacks.Add(smb.stateName, smb);
-        // }
         currAnimStateInfo = new AnimatorStateInfo[anim.layerCount];
         prevAnimStateInfo = new AnimatorStateInfo[anim.layerCount];
         defaultAnimStateInfo = new AnimatorStateInfo[anim.layerCount];
         for(int i = 0; i < anim.layerCount; ++i) {
             defaultAnimStateInfo[i] = anim.GetCurrentAnimatorStateInfo(i);
             currAnimStateInfo[i] = prevAnimStateInfo[i] = defaultAnimStateInfo[i];
+        }
+
+        if(defaultWieldIItem && defaultWieldIItem is IItemPrefab item) {
+            WieldItem(item);
         }
 
         if(!col)
@@ -119,6 +122,9 @@ public class StateProcessor : MonoBehaviour, IStateHandler
             if(!s.eventSO || !s.stateWrapperBase) 
                 continue;
             s.eventSO.CleanupObj(this);
+        }
+        foreach(var item in itemInstances) {
+            item.Value.SetActive(false);
         }
 
         if(!conscriptable) 
@@ -203,6 +209,36 @@ public class StateProcessor : MonoBehaviour, IStateHandler
 
     public virtual void ToggleProximityTrigger(bool b) {
         proximityTrigger?.gameObject.SetActive(b);
+    }
+
+    public virtual GameObject GetOrSpawnItemInstance(IItemPrefab item) {
+        if(!itemInstances.TryGetValue(item, out GameObject instance)) {
+            GameObject prefab = item.GetPrefab();
+            if(!prefab) return null;
+            instance = Instantiate(prefab);
+            itemInstances.Add(item, instance);
+        }
+        return instance;
+    }
+
+    public virtual void FreeItemInstance(GameObject instance) {
+        currentWieldItem = null;
+        currentWieldInstance = null;
+    }
+
+    public virtual void WieldItem(IItemPrefab item) {
+        GameObject instance = GetOrSpawnItemInstance(item);
+        if(instance) {
+            instance.SetActive(true);
+            instance.transform.SetParent(wieldParent, false);
+            if(instance.TryGetComponent<IToolInteract>(out var tool)) {
+                tool.Init(true, true, gameObject, (ScriptableObject)item);
+                tool.pivot = wieldPivot;
+            }
+            currentWieldTool = tool;
+            currentWieldItem = item;
+            currentWieldInstance = instance;
+        }
     }
 
     public virtual void UpdateAnimStateInfo() {

@@ -3,28 +3,51 @@ using m4k.Characters;
 
 namespace m4k.AI {
 public class CharacterDetection : IState {
+    [System.Serializable]
+    public struct Data {
+        public GameObjectListSO targetList;
+        public float maxSquaredRange;
+
+        [Range(0f, 360f)]
+        public float viewAngleOverride;
+        
+        [SerializeField]
+        [InspectInline(canCreateSubasset = true)]
+        private StateWrapperBase detectingStateWrapper, gotoStateWrapper;
+
+        public IState detectingState;
+        public IState gotoState;
+
+        public bool Init() {
+            if(detectingStateWrapper == null
+            || gotoStateWrapper == null) 
+                return false;
+            detectingState = detectingStateWrapper.GetState();
+            gotoState = gotoStateWrapper.GetState();
+            return true;
+        }
+    }
+
     public int priority { get; private set; }
     public StateProcessor processor { get; private set; }
-    
-    IState _detectingState;
-    IState _gotoState;
-    DetectRadiusAngle<CharacterControl> _detector;
+
+    Data data;
+    DetectRadiusAngle _detector;
     float _lastCheckTime;
 
-    public CharacterDetection(IState detectingState, IState gotoState, Transform self, string characterTag, float maxSquaredRange, float viewAngles = 0f, int priority = -1, StateProcessor processor = null) {
-        this._detectingState = detectingState;
-        this._gotoState = gotoState;
-        this.priority = priority;
-        this.processor = processor;
+    public CharacterDetection(Data data, int priority) {
+        this.data = data;
+        if(!this.data.Init()) {
+            Debug.LogError("Null state");
+        }
         this._lastCheckTime = 0f;
-
-        var characters = CharacterManager.I.GetCharacterControls(characterTag);
-        this._detector = new DetectRadiusAngle<CharacterControl>(self, characters, maxSquaredRange, viewAngles);
+        this.priority = priority;
+        this._detector = new DetectRadiusAngle(null, data.targetList.GetList(), data.maxSquaredRange, data.viewAngleOverride);
     }
 
     public void OnEnter(StateProcessor processor) {
         this.processor = processor;
-        _detectingState.OnEnter(processor);
+        data.detectingState.OnEnter(processor);
 
         if(_detector.self == null)
             _detector.self = processor.transform;
@@ -36,57 +59,26 @@ public class CharacterDetection : IState {
         {
             _lastCheckTime = Time.time;
             
-            if(_gotoState is ITargetHandler handler) {
+            if(data.gotoState is ITargetHandler handler) {
                 handler.target = _detector.GetCachedClosest().transform;
             }
-            processor.TryChangeState(_gotoState, true);
+            processor.TryChangeState(data.gotoState, true);
             return false; // prevent onStateComplete call
         }
-        return _detectingState.OnUpdate();
+        return data.detectingState.OnUpdate();
     }
 
     public void OnExit() {
-        _detectingState.OnExit();
-    }
-}
-
-[System.Serializable]
-public class CharacterDetectionWrapper : StateWrapper {
-    public string characterTag;
-    public float maxSquaredRange;
-    [Range(0f, 360f)]
-    public float viewAngleOverride;
-
-    [Tooltip("Basis to perform detection. Will use processor transform if null")]
-    public Transform self;
-    
-    [SerializeReference]
-#if SERIALIZE_REFS
-    [SubclassSelector]
-#endif
-    public StateWrapper detectingState, gotoState;
-
-
-    public override IState GetState() {
-        return new CharacterDetection(detectingState.GetState(), gotoState.GetState(), self, characterTag, maxSquaredRange, viewAngleOverride, priority);
+        data.detectingState.OnExit();
     }
 }
 
 [CreateAssetMenu(fileName = "CharacterDetectionState", menuName = "Data/AI/States/CharacterDetectionState", order = 0)]
 public class CharacterDetectionState : StateWrapperBase {
-    public string characterTag;
-    public float maxSquaredRange;
-    [Range(0f, 360f)]
-    public float viewAngleOverride;
-
-    [Tooltip("Basis to perform detection. Will use processor transform if null")]
-    public Transform self;
-    
-    [InspectInline(canCreateSubasset = true)]
-    public StateWrapperBase detectingState, gotoState;
+    public CharacterDetection.Data data;
 
     public override IState GetState() {
-        return new CharacterDetection(detectingState.GetState(), gotoState.GetState(), self, characterTag, maxSquaredRange, viewAngleOverride, priority);
+        return new CharacterDetection(data, priority);
     }
 }
 }

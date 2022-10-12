@@ -37,7 +37,7 @@ public class NpcInteraction : MonoBehaviour
 
     public void StartDialogue() {
         if(dialogue) {
-            movable?.Pause();
+            movable?.Stop();
             dialogue.AssignDialogue();
             DialogueManager.I.onEndDialogue += OnEndDialogue;
         }

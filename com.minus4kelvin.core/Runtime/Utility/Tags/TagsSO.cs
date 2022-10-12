@@ -14,7 +14,9 @@ namespace m4k {
 public class TagsSO : ScriptableObject {
     public static TagsSO I {
         get {
+#if UNITY_EDITOR
             if(!_instance) _instance = GetAsset();
+#endif
             return _instance;
         }
     }

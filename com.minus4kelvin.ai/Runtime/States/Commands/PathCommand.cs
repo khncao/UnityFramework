@@ -7,31 +7,27 @@ public struct Path : IState, ITargetHandler {
     public Transform target { get; set; }
 
     Vector3 _targetPosition;
+    float _speedMult;
 
-    // bool _arrived;
-
-    public Path(Transform t, int priority = -1, StateProcessor processor = null) {
+    public Path(Transform t = null, float speedMult = 1f, Vector3 targetPos = default, int priority = -1, StateProcessor processor = null) {
         target = t;
-        _targetPosition = Vector3.zero;
+        _targetPosition = targetPos;
+        _speedMult = speedMult;
         this.processor = processor;
         this.priority = priority;
-        // this._arrived = false;
     }
 
-    public Path(Vector3 pos, int priority = -1, StateProcessor processor = null) {
-        _targetPosition = pos;
-        target = null;
-        this.processor = processor;
-        this.priority = priority;
-        // this._arrived = false;
-    }
+    public Path(Vector3 pos, int priority = -1) : this(null, 1f, pos) {}
+
+    public Path(float speedMult, int priority = -1) : this(null, speedMult) {}
 
     public void OnEnter(StateProcessor processor) {
         this.processor = processor;
-        // this._arrived = false;
 
-        if(target)
+        if(target) {
             processor.movable.SetTarget(target);
+            processor.movable.Speed *= _speedMult;
+        }
         else
             processor.movable.SetTarget(_targetPosition);
         
@@ -48,6 +44,7 @@ public struct Path : IState, ITargetHandler {
         // processor.movable.OnArrive -= OnArrive;
         // processor.onArrive -= OnArrive;
         processor.movable.Stop();
+        processor.movable.Speed = -1f;
     }
 
     public void AssignTarget(Vector3 pos) {
@@ -77,16 +74,10 @@ public class PathWrapper : StateWrapper {
 
 [CreateAssetMenu(fileName = "PathCommand", menuName = "Data/AI/States/PathCommand", order = 0)]
 public class PathCommand : StateWrapperBase {
-    [Header("Target->Position->WrappingState(detector)")]
-    [Tooltip("Will fallback to targetPosition if null")]
-    public Transform targetTransform;
-    public Vector3 targetPosition;
+    public float speedMult = 2f;
 
     public override IState GetState() {
-        if(targetTransform)
-            return new Path(targetTransform, priority);
-        else
-            return new Path(targetPosition, priority);
+        return new Path(speedMult, priority);
     }
 }
 }

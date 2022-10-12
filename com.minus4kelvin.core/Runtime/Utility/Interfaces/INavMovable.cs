@@ -11,10 +11,11 @@ public interface INavMovable {
     bool IsMoving { get; }
     void SetTarget(Transform target);
     void SetTarget(Vector3 position);
-    void SetFaceTarget(Transform target);
+    void SetFaceTarget(Transform target) => Debug.Log("Not implemented");
     void Stop();
-    void Resume();
-    void Pause();
+    void Resume() => Debug.Log("Not implemented");
+    void RegisterMovementBlocker(object obj) => Debug.Log("Not implemented");
+    void UnregisterMovementBlocker(object obj) => Debug.Log("Not implemented");
     event Action OnArrive;
     event Action OnNewTarget;
 }

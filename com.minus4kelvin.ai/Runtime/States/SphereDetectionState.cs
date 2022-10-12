@@ -13,7 +13,7 @@ public class SphereDetection : IState {
     Transform _self;
     LayerMask _layers;
     string _tag;
-    DetectRadiusAngle<Collider> _detector;
+    DetectRadiusAngle _detector;
     Collider[] _hits;
 
     public SphereDetection(IState detectingState, IState gotoState, Transform self, LayerMask layers, string tag, float maxSquaredRange, float viewAngles = 0f, int priority = -1, StateProcessor processor = null) {
@@ -29,11 +29,11 @@ public class SphereDetection : IState {
 
         this._hits = new Collider[32];
         
-        System.Predicate<Collider> predicate = null;
+        System.Predicate<Transform> predicate = null;
         if(!string.IsNullOrEmpty(_tag)) {
             predicate = x => x.CompareTag(_tag);
         }
-        _detector = new DetectRadiusAngle<Collider>(self, _hits, maxSquaredRange, viewAngles, predicate);
+        _detector = new DetectRadiusAngle(self, _hits, maxSquaredRange, viewAngles, predicate);
     }
 
     public void OnEnter(StateProcessor processor) {

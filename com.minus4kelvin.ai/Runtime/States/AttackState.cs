@@ -1,121 +1,78 @@
 using UnityEngine;
 
 namespace m4k.AI {
-public struct Attack : IState, ITargetHandler {
+public class Attack : IState, ITargetHandler {
+    [System.Serializable]
+    public struct Data {
+        public int stateLayer;
+        public string triggerParam;
+        [Range(0f, 1f)]
+        public float attackNormalizedStartTime;
+        [Range(0f, 1f)]
+        public float attackNormalizedDuration;
+        public ScriptableObject toolItem;
+    }
+
     public int priority { get; set; }
     public StateProcessor processor { get; private set; }
     public Transform target { get; set; }
 
-    string _weaponId;
-    string _stateName;
-    string _triggerParam;
-    int _stateLayer;
-    float _normalizedTransitionTime;
-    float _attackNormalizedStartTime;
-    float _attackNormalizedDuration;
-
-    IToolInteract _toolInteract;
+    Data data;
+    IToolInteract _tool;
     bool _attacking;
 
-    public Attack(string weaponId, float attackNormalizedStartTime, float attackNormalizedDuration, string stateName, float normalizedTransitionTime, int stateLayer, string triggerParam, int priority = -1, StateProcessor processor = null) {
-        this._triggerParam = triggerParam;
-        this._stateLayer = stateLayer;
-        this.processor = processor;
-        this.target = null;
+    public Attack(Data data, int priority) {
+        this.data = data;
         this.priority = priority;
-        this._stateName = stateName;
-        this._normalizedTransitionTime = normalizedTransitionTime;
-        this._weaponId = weaponId;
-        this._attackNormalizedStartTime = attackNormalizedStartTime;
-        this._attackNormalizedDuration = attackNormalizedDuration;
-        this._attacking = false;
-        this._toolInteract = null;
     }
 
     public void OnEnter(StateProcessor processor) {
         this.processor = processor;
         _attacking = false;
-        _toolInteract = processor.GetComponent<IToolInteract>();
+        _tool = processor.currentWieldTool;
         
-        if(!string.IsNullOrEmpty(_stateName))
-            processor.anim?.CrossFade(_stateName, _normalizedTransitionTime, _stateLayer);
-        else if(!string.IsNullOrEmpty(_triggerParam))
-            processor.anim?.SetTrigger(_triggerParam);
+        if(!string.IsNullOrEmpty(data.triggerParam))
+            processor.anim?.SetTrigger(data.triggerParam);
     }
 
     public bool OnUpdate() {
-        var stateInfo = processor.currAnimStateInfo[_stateLayer];
+        var stateInfo = processor.currAnimStateInfo[data.stateLayer];
 
-        if(!_attacking && stateInfo.IsName(_stateName)
-        && stateInfo.normalizedTime > _attackNormalizedStartTime
-        && (stateInfo.normalizedTime - _attackNormalizedStartTime) < _attackNormalizedDuration) {
+        if(!_attacking
+        && stateInfo.normalizedTime > data.attackNormalizedStartTime
+        && (stateInfo.normalizedTime - data.attackNormalizedStartTime) < data.attackNormalizedDuration) {
             // Debug.Log("Enable attack");
-            if(_toolInteract != null) {
-                _toolInteract.StartInteract(_weaponId, target);
+            if(_tool != null) {
+                _tool.StartInteract(null, target);
             }
             _attacking = true;
         }
         else if(_attacking
-        && (stateInfo.normalizedTime - _attackNormalizedStartTime) > _attackNormalizedDuration) {
+        && (stateInfo.normalizedTime - data.attackNormalizedStartTime) > data.attackNormalizedDuration) {
             // Debug.Log("Disable attack");
-            if(_toolInteract != null) {
-                _toolInteract.StopInteract();
+            if(_tool != null) {
+                _tool.StopInteract();
             }
             _attacking = false;
         }
-        if(processor.CheckAnimStateChangedToDefault(_stateLayer))
+        if(processor.CheckAnimStateChangedToDefault(data.stateLayer))
             return true;
         return false;
     }
 
     public void OnExit() {
         _attacking = false;
-        if(!string.IsNullOrEmpty(_triggerParam))
-            processor?.anim?.ResetTrigger(_triggerParam);
-    }
-}
-
-[System.Serializable]
-public class AttackStateWrapper : StateWrapper {
-    [Header("StateName->triggerParam")]
-    public int stateLayer;
-    public string stateName;
-    [Tooltip("Crossfade time when using stateName. Not used by triggerParam")]
-    [Range(0f, 1f)]
-    public float normalizedTransitionTime;
-    public string triggerParam;
-    [Range(0f, 1f)]
-    public float attackNormalizedStartTime;
-    [Range(0f, 1f)]
-    public float attackNormalizedDuration;
-
-    [Header("ID for using specific weapon tool")]
-    public string weaponId;
-
-    public override IState GetState() {
-        return new Attack(weaponId, attackNormalizedStartTime, attackNormalizedDuration, stateName, normalizedTransitionTime, stateLayer, triggerParam, priority);
+        if(!string.IsNullOrEmpty(data.triggerParam))
+            processor?.anim?.ResetTrigger(data.triggerParam);
     }
 }
 
 [CreateAssetMenu(fileName = "AttackState", menuName = "Data/AI/States/AttackState", order = 0)]
 public class AttackState : StateWrapperBase {
-    [Header("StateName->triggerParam")]
-    public int stateLayer;
-    public string stateName;
-    [Tooltip("Crossfade time when using stateName. Not used by triggerParam")]
-    [Range(0f, 1f)]
-    public float normalizedTransitionTime;
-    public string triggerParam;
-    [Range(0f, 1f)]
-    public float attackNormalizedStartTime;
-    [Range(0f, 1f)]
-    public float attackNormalizedDuration;
-
-    [Header("ID for using specific weapon tool")]
-    public string weaponId;
+    public Attack.Data data;
 
     public override IState GetState() {
-        return new Attack(weaponId, attackNormalizedStartTime, attackNormalizedDuration, stateName, normalizedTransitionTime, stateLayer, triggerParam, priority);
+        return new Attack(data, priority);
     }
 }
 }

@@ -4,6 +4,19 @@ using UnityEngine;
 
 public class CharacterEvents : MonoBehaviour
 {
-    public RandomAudioPlayer footstepAudio, landingAudio;
-    
+    [Header("Audio")]
+    public RandomAudioPlayer landingAudio;
+    public RandomAudioPlayer footstepAudio;
+
+    private void OnFootstep(AnimationEvent animationEvent) {
+        if (animationEvent.animatorClipInfo.weight > 0.5f) {
+            footstepAudio.PlayRandomClip();
+        }
+    }
+
+    private void OnLand(AnimationEvent animationEvent) {
+        if (animationEvent.animatorClipInfo.weight > 0.5f) {
+            footstepAudio.PlayRandomClip();
+        }
+    }
 }

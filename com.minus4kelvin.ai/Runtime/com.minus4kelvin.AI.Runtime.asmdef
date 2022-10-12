@@ -1,9 +1,9 @@
 {
     "name": "com.minus4kelvin.AI.Runtime",
-    "rootNamespace": "",
+    "rootNamespace": "m4k",
     "references": [
-        "GUID:b39e51532aaf1aa42afe103341854a22",
-        "GUID:49b49c76ee64f6b41bf28ef951cb0e50"
+        "com.minus4kelvin.Core.Runtime",
+        "MackySoft.SerializeReferenceExtensions"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

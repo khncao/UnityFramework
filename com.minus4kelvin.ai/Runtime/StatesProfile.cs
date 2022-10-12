@@ -93,6 +93,12 @@ public class StatesProfile : ScriptableObject {
         return null;
     }
 
+    public void OnProcessorDestroyed(StateProcessor processor) {
+        if(processorStateCache.TryGetValue(processor, out var cache)) {
+            processorStateCache.Remove(processor);
+        }
+    }
+
 #if UNITY_EDITOR
     [ContextMenu("Validate StateWrapperBases")]
     void ValidateStates() {

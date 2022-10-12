@@ -5,17 +5,16 @@ namespace m4k {
 /// <summary>
 /// Check hits by checking distance and angle from transform and transform forward, respectively. Iterates through a list of externally managed type T to process hits into local recycle list named hits.
 /// </summary>
-/// <typeparam name="T">Should be castable to Component; interfaces on MonoBehaviours should work</typeparam>
-public class DetectRadiusAngle<T> where T : class {
+public class DetectRadiusAngle {
     const float HitsStaleThreshold = 1f;
 
     public bool detectSelf { get; set; }
 
     public Transform self { get; set; }
 
-    public IList<T> others { get; private set; }
+    public IList<Transform> others { get; private set; }
 
-    public IList<T> hits { get {
+    public IList<Transform> hits { get {
         CheckIfHitsStale();
         return _hits;
     }}
@@ -25,15 +24,16 @@ public class DetectRadiusAngle<T> where T : class {
         return _hits.Count > 0; 
     }}
 
-    System.Predicate<T> query;
-    IList<T> _hits;
-    HashSet<T> _inRange;
+    System.Predicate<Transform> query;
+    IList<Transform> _hits;
+    HashSet<Transform> _inRange;
+    List<Transform> castedCache = new List<Transform>();
     
     float _lastCheckTime;
     float _viewAngles;
     float _maxSquaredRange;
     float _closestDistance;
-    T _closest;
+    Transform _closest;
 
     /// <summary>
     /// 
@@ -43,13 +43,29 @@ public class DetectRadiusAngle<T> where T : class {
     /// <param name="maxSquaredRange">Max squared radius from self</param>
     /// <param name="viewAngles">Angle from transform forward for hits; leave empty or 0f to only check radius</param>
     /// <param name="query"></param>
-    public DetectRadiusAngle(Transform self, IList<T> others, float maxSquaredRange, float viewAngles = 0f, System.Predicate<T> query = null) {
+    public DetectRadiusAngle(Transform self, IList<Transform> others, float maxSquaredRange, float viewAngles = 0f, System.Predicate<Transform> query = null) {
+        Init(self, castedCache, maxSquaredRange, viewAngles, query);
+    }
+
+    public DetectRadiusAngle(Transform self, IList<GameObject> others, float maxSquaredRange, float viewAngles = 0f, System.Predicate<Transform> query = null) {
+        castedCache.Clear();
+        foreach(var go in others) castedCache.Add(go.transform);
+        Init(self, castedCache, maxSquaredRange, viewAngles, query);
+    }
+
+    public DetectRadiusAngle(Transform self, IList<Component> others, float maxSquaredRange, float viewAngles = 0f, System.Predicate<Transform> query = null) {
+        castedCache.Clear();
+        foreach(var c in others) castedCache.Add(c.transform);
+        Init(self, castedCache, maxSquaredRange, viewAngles, query);
+    }
+
+    void Init(Transform self, IList<Transform> others, float maxSquaredRange, float viewAngles = 0f, System.Predicate<Transform> query = null) {
         this.self = self;
         this.others = others;
         this._viewAngles = viewAngles;
         this._maxSquaredRange = maxSquaredRange;
-        this._hits = new List<T>();
-        this._inRange = new HashSet<T>();
+        this._hits = new List<Transform>();
+        this._inRange = new HashSet<Transform>();
         this.query = query;
         this.detectSelf = false;
     }
@@ -62,12 +78,12 @@ public class DetectRadiusAngle<T> where T : class {
         return stale;
     }
 
-    public T GetCachedClosest() {
+    public Transform GetCachedClosest() {
         CheckIfHitsStale();
         return _closest;
     }
 
-    public bool CheckInRangeCached(T target) {
+    public bool CheckInRangeCached(Transform target) {
         CheckIfHitsStale();
         return _inRange.Contains(target);
     }
@@ -92,14 +108,8 @@ public class DetectRadiusAngle<T> where T : class {
         return hasHit;
     }
 
-    bool IsValid(T other) {
-        Component component = (other as Component);
-        if(!component) {
-            Debug.LogError("Invalid T; failed cast to Component");
-            return false;
-        }
-
-        Transform otherTransform = component.transform;
+    bool IsValid(Transform other) {
+        Transform otherTransform = other;
         if(!detectSelf && otherTransform == self)
             return false;
 
