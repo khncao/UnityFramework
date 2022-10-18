@@ -32,7 +32,7 @@ public class CharacterDetection : IState {
     public StateProcessor processor { get; private set; }
 
     Data data;
-    DetectRadiusAngle _detector;
+    DetectRadiusAngleGameObject _detector;
     float _lastCheckTime;
 
     public CharacterDetection(Data data, int priority) {
@@ -42,7 +42,7 @@ public class CharacterDetection : IState {
         }
         this._lastCheckTime = 0f;
         this.priority = priority;
-        this._detector = new DetectRadiusAngle(null, data.targetList.GetList(), data.maxSquaredRange, data.viewAngleOverride);
+        this._detector = new DetectRadiusAngleGameObject(null, data.targetList.GetList(), data.maxSquaredRange, data.viewAngleOverride);
     }
 
     public void OnEnter(StateProcessor processor) {
@@ -50,7 +50,7 @@ public class CharacterDetection : IState {
         data.detectingState.OnEnter(processor);
 
         if(_detector.self == null)
-            _detector.self = processor.transform;
+            _detector.self = processor.gameObject;
     }
 
     public bool OnUpdate() {

@@ -27,6 +27,9 @@ public class StateProcessor : MonoBehaviour, IStateHandler
     public bool conscriptable = true;
     public float detectionCooldown = 1f;
     public float viewAngles = 180f;
+    public bool visualize = true;
+    public bool applyState = true;
+    public bool autoInit = false;
 
     public System.Action onStateComplete, onArrive;
 
@@ -48,6 +51,8 @@ public class StateProcessor : MonoBehaviour, IStateHandler
 
     public AnimatorStateInfo[] currAnimStateInfo, prevAnimStateInfo, defaultAnimStateInfo;
 
+    bool initialized = false;
+
     public IState GetCurrentNestedState(int maxDepth = 5) {
         IState state = currentState;
         int depth = 0;
@@ -61,6 +66,14 @@ public class StateProcessor : MonoBehaviour, IStateHandler
     }
 
     protected virtual void Start() {
+        if(autoInit) {
+            Init();
+        }
+    }
+
+    public void Init() {
+        if(initialized) return;
+        initialized = true;
         movable = GetComponentInChildren<INavMovable>();
         if(movable == null)
             movable = GetComponentInParent<INavMovable>();
@@ -133,7 +146,7 @@ public class StateProcessor : MonoBehaviour, IStateHandler
         onRemoveProcessor?.Invoke(this);
     }
 
-    public virtual void Update() {
+    public virtual void OnUpdate() {
         stateMachine.OnUpdate();
     }
 
@@ -232,7 +245,7 @@ public class StateProcessor : MonoBehaviour, IStateHandler
             instance.SetActive(true);
             instance.transform.SetParent(wieldParent, false);
             if(instance.TryGetComponent<IToolInteract>(out var tool)) {
-                tool.Init(true, true, gameObject, (ScriptableObject)item);
+                tool.Init(visualize, applyState, gameObject, (ScriptableObject)item);
                 tool.pivot = wieldPivot;
             }
             currentWieldTool = tool;
