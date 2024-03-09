@@ -4,73 +4,68 @@
 
 using UnityEngine;
 
-namespace m4k {
-public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
+namespace m4k
 {
-   private static object m_Lock = new object();
-   protected static T _instance;
-   
-   protected bool m_ShuttingDown = false;
+    public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
+    {
+        private readonly static object m_Lock = new();
+        protected static T _instance;
 
-   public static T I
-   {
-      get
-      {
-         // if (m_ShuttingDown)
-         // {
-         //       // Debug.LogWarning("[Singleton] Instance '" + typeof(T) +
-         //       //    "' already destroyed. Returning null.");
-         //       return null;
-         // }
-         lock (m_Lock)
-         {
-               if(_instance != null) {
-                  return _instance;
-               }
+        protected bool m_ShuttingDown = false;
 
-               _instance = (T)FindObjectOfType(typeof(T));
-               // if (_instance == null)
-               // {
-               //    if (_instance == null) {
-               //       // GameObject obj = new GameObject ();
-               //       // obj.name = typeof ( T ).Name;
-               //       // _instance = obj.AddComponent<T> ();  
-               //       Debug.LogError("No instance for: " + typeof(T));
-               //    }
-               // }
+        public static T I
+        {
+            get
+            {
+                lock (m_Lock)
+                {
+                    if (_instance != null)
+                    {
+                        return _instance;
+                    }
+                    else {
+                        var objs = FindObjectsOfType<T>();
+                        if (objs.Length > 1)
+                        {
+                            Debug.LogError("Unexpected: found more than 1 instance of singleton");
+                        }
+                        else if(objs.Length == 1)
+                        {
+                            _instance = objs[0];
+                        }
+                        if (_instance == null)
+                        {
+                            GameObject obj = new(typeof(T).Name);
+                            _instance = obj.AddComponent<T>();
+                        }
+                    }
 
-               return _instance;
-         }
-      }
-   }
+                    return _instance;
+                }
+            }
+        }
 
-	protected virtual void Awake ()
-	{
-		if (_instance == null )
-		{
-			_instance = this as T;
-         m_ShuttingDown = false;
-		}
-		else if(_instance != this)
-		{
-			Destroy ( transform.root.gameObject );
-         m_ShuttingDown = true;
-         Debug.LogWarning($"Existing instance of type {typeof(T).ToString()}");
-		}
-   }
+        protected virtual void Awake()
+        {
+            if (_instance == null)
+            {
+                _instance = this as T;
+                m_ShuttingDown = false;
+            }
+            else if (_instance != this)
+            {
+                Destroy(gameObject);
+                m_ShuttingDown = true;
+                Debug.LogWarning($"Existing instance of type {typeof(T).ToString()}");
+            }
+        }
 
-   // private void OnApplicationQuit() {
-   //    m_ShuttingDown = true;
-   // }
-
-   // void OnDisable() {
-   //    m_ShuttingDown = true;
-   // }
-
-   private void OnDestroy() {
-      lock(m_Lock) {
-         _instance = null;
-      }
-   }
-}
+        protected virtual void OnDestroy()
+        {
+            lock (m_Lock)
+            {
+                _instance = null;
+            }
+        }
+    }
 }

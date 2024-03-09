@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using m4k.Items;
@@ -31,7 +32,8 @@ public class StateProcessor : MonoBehaviour, IStateHandler
     public bool applyState = true;
     public bool autoInit = false;
 
-    public System.Action onStateComplete, onArrive;
+    public Action onStateComplete, onArrive;
+    public Action onStateChange;
 
     public bool HasState { get { return currentState != null; } }
     public bool isStopped { get; set; }
@@ -47,7 +49,7 @@ public class StateProcessor : MonoBehaviour, IStateHandler
     protected StateMachine stateMachine;
 
     protected Queue<IState> eventStateQueue = new Queue<IState>();
-    protected Dictionary<IItemPrefab, GameObject> itemInstances = new Dictionary<IItemPrefab, GameObject>();
+    protected Dictionary<IItemPrefab, GameObject> itemInstances = new();
 
     public AnimatorStateInfo[] currAnimStateInfo, prevAnimStateInfo, defaultAnimStateInfo;
 
